@@ -118,6 +118,21 @@ return {
             },
           },
         },
+        jdtls = {
+          filetypes = { 'kotlin', 'java' },
+          workspace = { checkThirdParty = false },
+        },
+        kotlin_language_server = {
+          filetypes = { 'kotlin' },
+          kotlin = {
+            -- formatters = {
+            --   ignoreComments = true,
+            -- },
+            signatureHelp = { enabled = true },
+          },
+          workspace = { checkThirdParty = false },
+          telemetry = { enabled = false },
+        },
       }
 
       require('mason').setup()
