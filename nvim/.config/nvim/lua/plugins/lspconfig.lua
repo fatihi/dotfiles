@@ -133,6 +133,15 @@ return {
           workspace = { checkThirdParty = false },
           telemetry = { enabled = false },
         },
+        lemminx = {
+          settings = {
+            xml = {
+              server = {
+                workDir = '~/.cache/lemminx',
+              },
+            },
+          },
+        },
       }
 
       require('mason').setup()
