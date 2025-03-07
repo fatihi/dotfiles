@@ -91,6 +91,7 @@ return {
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       local servers = {
+        -- lua
         lua_ls = {
           settings = {
             Lua = {
@@ -101,18 +102,7 @@ return {
             },
           },
         },
-        jdtls = {
-          filetypes = { 'kotlin', 'java' },
-          workspace = { checkThirdParty = false },
-        },
-        kotlin_language_server = {
-          filetypes = { 'kotlin' },
-          kotlin = {
-            signatureHelp = { enabled = true },
-          },
-          workspace = { checkThirdParty = false },
-          telemetry = { enabled = false },
-        },
+        -- xml
         lemminx = {
           settings = {
             xml = {
@@ -122,6 +112,7 @@ return {
             },
           },
         },
+        -- pyright
         pyright = {
           python = {
             analysis = {
@@ -131,6 +122,7 @@ return {
             },
           },
         },
+        -- go
         gopls = {
           settings = {
             gopls = {
