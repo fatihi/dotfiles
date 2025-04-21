@@ -9,6 +9,6 @@ end
 
 -- Settings
 config.color_scheme = "tokyonight_night"
-config.font = wezterm.font("FiraCode Nerd Font")
+config.font = wezterm.font("FiraCode")
 
 return config
