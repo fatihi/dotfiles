@@ -8,7 +8,11 @@ if wezterm.config_builder then
 end
 
 -- Settings
-config.color_scheme = "tokyonight_night"
+config.color_scheme = "SeaShells"
 config.font = wezterm.font("FiraCode")
+
+-- Disable wayland for gnome decorations
+
+config.enable_wayland = false
 
 return config
