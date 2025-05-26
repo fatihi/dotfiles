@@ -137,7 +137,4 @@ wezterm.on("update-status", function(window, pane)
 	}))
 end)
 
--- Change shell to fish
-config.default_prog = { "/usr/bin/fish", "-l" }
-
 return config
