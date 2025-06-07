@@ -11,6 +11,8 @@ vim.o.relativenumber = true
 
 -- set how many characters tab should be
 vim.o.shiftwidth = 2
+vim.o.tabstop = 2
+vim.o.softtabstop = 2
 
 -- enable mouse mode
 vim.o.mouse = "a"
