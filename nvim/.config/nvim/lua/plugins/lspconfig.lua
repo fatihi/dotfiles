@@ -149,7 +149,7 @@ return {
 
 			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-			local serves = {
+			local servers = {
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -159,11 +159,19 @@ return {
 						},
 					},
 				},
+				astro = {
+					filetypes = { "astro" },
+				},
+				ts_ls = {},
+				html = {},
+				cssls = {},
+				tailwindcss = {},
 			}
 
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua",
+				"prettier",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
