@@ -19,7 +19,10 @@ local custom_colors = {
 	yellow = "#EBCB8B",
 }
 config.font = wezterm.font_with_fallback({
-	{ family = "FiraCode", scale = 1.0 },
+	{ family = "FiraCodeNerdFont", scale = 1.0 },
+	{ family = "JetBrains Mono", scale = 1.0 },
+	{ family = "Terminus", scale = 1.0 },
+	{ family = "Noto Color Emoji", scale = 1.0 },
 })
 config.window_decorations = "RESIZE"
 config.window_close_confirmation = "AlwaysPrompt"
