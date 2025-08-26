@@ -1,13 +1,13 @@
 return {
-	"folke/tokyonight.nvim",
+	"ellisonleao/gruvbox.nvim",
 	priority = 1000,
 	config = function()
-		require("tokyonight").setup({
+		require("gruvbox").setup({
 			styles = {
 				comments = { italic = false },
 			},
 		})
 
-		vim.cmd.colorscheme("tokyonight-moon")
+		vim.cmd.colorscheme("gruvbox")
 	end,
 }
