@@ -11,7 +11,7 @@ end
 config.enable_wayland = false
 
 -- Settings
-config.color_scheme = "nordfox"
+config.color_scheme = "Gruvbox Dark (Gogh)"
 local custom_colors = {
 	red = "#D06F79",
 	cyan = "#88C0D0",
