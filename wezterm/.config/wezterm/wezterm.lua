@@ -64,6 +64,9 @@ config.keys = {
 
 	-- Workspaces
 	{ key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+
+	-- Claude code
+	{ key = "Enter", mods = "SHIFT", action = wezterm.action({ SendString = "\x1b\r" }) },
 }
 
 -- Navigate tabs with index
