@@ -20,6 +20,7 @@ local custom_colors = {
 }
 config.font = wezterm.font_with_fallback({
 	{ family = "FiraCodeNerdFont", scale = 1.0 },
+	{ family = "FiraCode Nerd Font", scale = 1.0 },
 	{ family = "JetBrains Mono", scale = 1.0 },
 	{ family = "Terminus", scale = 1.0 },
 	{ family = "Noto Color Emoji", scale = 1.0 },
