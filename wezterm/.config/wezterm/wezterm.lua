@@ -19,6 +19,7 @@ local custom_colors = {
 	yellow = "#EBCB8B",
 }
 config.font = wezterm.font_with_fallback({
+	{ family = "Maple Mono", scale = 1.0 },
 	{ family = "FiraCodeNerdFont", scale = 1.0 },
 	{ family = "FiraCode Nerd Font", scale = 1.0 },
 	{ family = "JetBrains Mono", scale = 1.0 },
