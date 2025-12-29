@@ -32,4 +32,4 @@
 # resize-overlay-duration = 4s 200ms
 
 font-family = "Maple Mono"
-theme = "GruvboxDark"
+theme = "Gruvbox Dark"
