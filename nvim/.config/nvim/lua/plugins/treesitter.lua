@@ -2,7 +2,7 @@ return {
 	-- highlight, edit and navigate code
 	"nvim-treesitter/nvim-treesitter",
 	build = ":TSUpdate",
-	main = "nvim-treesitter.configs",
+	main = "nvim-treesitter.config",
 	opts = {
 		ensure_installed = {
 			"bash",
