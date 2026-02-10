@@ -71,7 +71,7 @@ config.keys = {
 	-- Workspaces
 	{ key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
-﻿	-- Claude code
+	-- Claude code
 	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b\r") },
 
 	-- Mac specific
