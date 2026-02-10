@@ -26,7 +26,11 @@ config.font = wezterm.font_with_fallback({
 	{ family = "Terminus", scale = 1.0 },
 	{ family = "Noto Color Emoji", scale = 1.0 },
 })
-config.window_decorations = "RESIZE"
+if wezterm.target_triple == "x86_64-unknown-linux-gnu" then
+	config.window_decorations = "RESIZE"
+else
+	config.window_decorations = "TITLE | RESIZE"
+end
 config.window_close_confirmation = "AlwaysPrompt"
 config.default_workspace = "main"
 
@@ -67,8 +71,12 @@ config.keys = {
 	-- Workspaces
 	{ key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
-	-- Claude code
-	{ key = "Enter", mods = "SHIFT", action = wezterm.action({ SendString = "\x1b\r" }) },
+﻿	-- Claude code
+	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b\r") },
+
+	-- Mac specific
+	{ key = "LeftArrow", mods = "OPT", action = act.SendString("\x1bb") },
+	{ key = "RightArrow", mods = "OPT", action = act.SendString("\x1bf") },
 }
 
 -- Navigate tabs with index
