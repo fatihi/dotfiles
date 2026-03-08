@@ -43,6 +43,9 @@ config.inactive_pane_hsb = {
 -- Keybinds
 config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
+	-- Navigate
+	{ key = "g", mods = "LEADER", action = act.ScrollToTop },
+
 	-- Send C-a when pressing C-a twice
 	{ key = "a", mods = "LEADER", action = act.SendKey({ key = "a", mods = "CTRL" }) },
 	{ key = "c", mods = "LEADER", action = act.ActivateCopyMode },
@@ -57,6 +60,7 @@ config.keys = {
 	{ key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
 	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
 	{ key = "s", mods = "LEADER", action = act.RotatePanes("Clockwise") },
+
 	-- KeyTable for resizing panes
 	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
 
@@ -65,6 +69,7 @@ config.keys = {
 	{ key = "[", mods = "LEADER", action = act.ActivateTabRelative(-1) },
 	{ key = "]", mods = "LEADER", action = act.ActivateTabRelative(1) },
 	{ key = "t", mods = "LEADER", action = act.ShowTabNavigator },
+
 	-- KeyTable for moving tabs around
 	{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
 
@@ -77,6 +82,9 @@ config.keys = {
 	-- Mac specific
 	{ key = "LeftArrow", mods = "OPT", action = act.SendString("\x1bb") },
 	{ key = "RightArrow", mods = "OPT", action = act.SendString("\x1bf") },
+
+	-- Delete word backward
+	{ key = "Backspace", mods = "CTRL", action = act.SendKey({ key = "w", mods = "CTRL" }) },
 }
 
 -- Navigate tabs with index
