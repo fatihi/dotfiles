@@ -88,13 +88,13 @@ local function workspace_status(name)
 end
 
 -- Keybinds
-config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
+config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
 	-- Navigate
 	{ key = "g", mods = "LEADER", action = act.ScrollToTop },
 
-	-- Send C-a when pressing C-a twice
-	{ key = "a", mods = "LEADER", action = act.SendKey({ key = "a", mods = "CTRL" }) },
+	-- Send C-Space when pressing C-Space twice
+	{ key = "Space", mods = "LEADER", action = act.SendKey({ key = "Space", mods = "CTRL" }) },
 	{ key = "c", mods = "LEADER", action = act.ActivateCopyMode },
 
 	-- Panes
@@ -121,6 +121,8 @@ config.keys = {
 	{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
 
 	-- Workspaces
+	{ key = "[", mods = "LEADER|CTRL", action = act.SwitchWorkspaceRelative(-1) },
+	{ key = "]", mods = "LEADER|CTRL", action = act.SwitchWorkspaceRelative(1) },
 	{
 		key = "w",
 		mods = "LEADER",
