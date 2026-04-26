@@ -262,13 +262,39 @@ wezterm.on("update-status", function(window, pane)
 		{ Text = " " },
 	}))
 
-	window:set_right_status(wezterm.format({
-		{ Text = wezterm.nerdfonts.md_folder .. " " .. cwd },
-		{ Text = " | " },
-		{ Foreground = { Color = custom_colors.yellow } },
-		{ Text = wezterm.nerdfonts.fa_code .. " " .. ccmd },
-		{ Text = " | " },
-	}))
+	-- Workspace list with Claude state
+	local active_ws = window:active_workspace()
+	local right = {}
+	for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+		local has_claude, waiting, working = workspace_status(name)
+		if waiting then
+			table.insert(right, { Foreground = { Color = custom_colors.red } })
+			table.insert(right, { Text = wezterm.nerdfonts.md_bell_ring .. " " })
+		elseif working then
+			table.insert(right, { Foreground = { Color = custom_colors.yellow } })
+			table.insert(right, { Text = wezterm.nerdfonts.md_loading .. " " })
+		elseif has_claude then
+			table.insert(right, "ResetAttributes")
+			table.insert(right, { Text = wezterm.nerdfonts.md_robot .. " " })
+		end
+		if name == active_ws then
+			table.insert(right, { Foreground = { Color = custom_colors.cyan } })
+			table.insert(right, { Attribute = { Intensity = "Bold" } })
+		else
+			table.insert(right, "ResetAttributes")
+		end
+		table.insert(right, { Text = name })
+		table.insert(right, "ResetAttributes")
+		table.insert(right, { Text = "  " })
+	end
+	table.insert(right, { Text = "| " })
+	table.insert(right, { Text = wezterm.nerdfonts.md_folder .. " " .. cwd })
+	table.insert(right, { Text = " | " })
+	table.insert(right, { Foreground = { Color = custom_colors.yellow } })
+	table.insert(right, { Text = wezterm.nerdfonts.fa_code .. " " .. ccmd })
+	table.insert(right, { Text = " | " })
+
+	window:set_right_status(wezterm.format(right))
 end)
 
 return config
