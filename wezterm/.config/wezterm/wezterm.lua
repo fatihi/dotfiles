@@ -40,6 +40,53 @@ config.inactive_pane_hsb = {
 	brightness = 0.5,
 }
 
+-- Track panes that rang the bell (Claude waiting/done). Cleared on focus.
+local pane_bells = {}
+
+wezterm.on("bell", function(_, pane)
+	pane_bells[pane:pane_id()] = true
+end)
+
+local function pane_has_claude(pane)
+	local info = pane:get_foreground_process_info()
+	if not info then
+		return false
+	end
+	for _, arg in ipairs(info.argv or {}) do
+		if arg:match("claude") then
+			return true
+		end
+	end
+	return false
+end
+
+local function pane_is_working(pane)
+	local text = pane:get_lines_as_text(30)
+	return text:find("esc to interrupt", 1, true) ~= nil
+end
+
+local function workspace_status(name)
+	local has_claude, waiting, working = false, false, false
+	for _, win in ipairs(wezterm.mux.all_windows()) do
+		if win:get_workspace() == name then
+			for _, tab in ipairs(win:tabs()) do
+				for _, p in ipairs(tab:panes()) do
+					if pane_has_claude(p) then
+						has_claude = true
+						if pane_bells[p:pane_id()] then
+							waiting = true
+						end
+						if pane_is_working(p) then
+							working = true
+						end
+					end
+				end
+			end
+		end
+	end
+	return has_claude, waiting, working
+end
+
 -- Keybinds
 config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 1000 }
 config.keys = {
@@ -74,7 +121,67 @@ config.keys = {
 	{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
 
 	-- Workspaces
-	{ key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
+	{
+		key = "w",
+		mods = "LEADER",
+		action = wezterm.action_callback(function(window, pane)
+			local choices = {
+				{ label = wezterm.nerdfonts.md_plus .. " Create new workspace…", id = "__new__" },
+			}
+			for _, name in ipairs(wezterm.mux.get_workspace_names()) do
+				local has_claude, waiting, working = workspace_status(name)
+				local prefix = "  "
+				if waiting then
+					prefix = wezterm.nerdfonts.md_bell_ring .. " "
+				elseif working then
+					prefix = wezterm.nerdfonts.md_loading .. " "
+				elseif has_claude then
+					prefix = wezterm.nerdfonts.md_robot .. " "
+				end
+				table.insert(choices, { label = prefix .. name, id = name })
+			end
+			window:perform_action(
+				act.InputSelector({
+					title = "Switch workspace",
+					choices = choices,
+					fuzzy = true,
+					action = wezterm.action_callback(function(inner_window, inner_pane, id)
+						if not id then
+							return
+						end
+						if id == "__new__" then
+							inner_window:perform_action(
+								act.PromptInputLine({
+									description = "New workspace name",
+									action = wezterm.action_callback(function(w, p, line)
+										if line and line ~= "" then
+											w:perform_action(act.SwitchToWorkspace({ name = line }), p)
+										end
+									end),
+								}),
+								inner_pane
+							)
+						else
+							inner_window:perform_action(act.SwitchToWorkspace({ name = id }), inner_pane)
+						end
+					end),
+				}),
+				pane
+			)
+		end),
+	},
+	{
+		key = "$",
+		mods = "LEADER|SHIFT",
+		action = act.PromptInputLine({
+			description = "Enter new name for workspace",
+			action = wezterm.action_callback(function(window, _, line)
+				if line then
+					wezterm.mux.rename_workspace(window:mux_window():get_workspace(), line)
+				end
+			end),
+		}),
+	},
 
 	-- Claude code
 	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b\r") },
@@ -119,6 +226,9 @@ config.key_tables = {
 config.use_fancy_tab_bar = false
 config.status_update_interval = 1000
 wezterm.on("update-status", function(window, pane)
+	-- Clear bell flag for the focused pane
+	pane_bells[pane:pane_id()] = nil
+
 	local shorten_name = function(s)
 		return string.gsub(s, "(.*[/\\])(.*)", "%2")
 	end
