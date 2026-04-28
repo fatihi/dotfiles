@@ -40,21 +40,20 @@ config.inactive_pane_hsb = {
 	brightness = 0.5,
 }
 
--- Track panes that rang the bell (Claude waiting/done). Cleared on focus.
-local pane_bells = {}
+local ai_patterns = { "claude", "copilot", "^pi$" }
 
-wezterm.on("bell", function(_, pane)
-	pane_bells[pane:pane_id()] = true
-end)
-
-local function pane_has_claude(pane)
+local function pane_has_ai(pane)
 	local info = pane:get_foreground_process_info()
 	if not info then
 		return false
 	end
 	for _, arg in ipairs(info.argv or {}) do
-		if arg:match("claude") then
-			return true
+		-- Match against the basename to avoid path false positives for short names
+		local basename = arg:match("([^/\\]+)$") or arg
+		for _, pattern in ipairs(ai_patterns) do
+			if basename:match(pattern) then
+				return true
+			end
 		end
 	end
 	return false
@@ -62,20 +61,22 @@ end
 
 local function pane_is_working(pane)
 	local text = pane:get_lines_as_text(30)
+	-- Claude Code: "esc to interrupt" in status bar
+	-- Copilot CLI: "Esc to cancel" in status line
+	-- pi: "Working..." while generating
 	return text:find("esc to interrupt", 1, true) ~= nil
+		or text:find("Esc to cancel", 1, true) ~= nil
+		or text:find("Working...", 1, true) ~= nil
 end
 
 local function workspace_status(name)
-	local has_claude, waiting, working = false, false, false
+	local has_ai, working = false, false
 	for _, win in ipairs(wezterm.mux.all_windows()) do
 		if win:get_workspace() == name then
 			for _, tab in ipairs(win:tabs()) do
 				for _, p in ipairs(tab:panes()) do
-					if pane_has_claude(p) then
-						has_claude = true
-						if pane_bells[p:pane_id()] then
-							waiting = true
-						end
+					if pane_has_ai(p) then
+						has_ai = true
 						if pane_is_working(p) then
 							working = true
 						end
@@ -84,11 +85,11 @@ local function workspace_status(name)
 			end
 		end
 	end
-	return has_claude, waiting, working
+	return has_ai, working
 end
 
 -- Keybinds
-config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = 1000 }
+config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = math.huge }
 config.keys = {
 	-- Navigate
 	{ key = "g", mods = "LEADER", action = act.ScrollToTop },
@@ -131,14 +132,12 @@ config.keys = {
 				{ label = wezterm.nerdfonts.md_plus .. " Create new workspace…", id = "__new__" },
 			}
 			for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-				local has_claude, waiting, working = workspace_status(name)
+				local has_ai, working = workspace_status(name)
 				local prefix = "  "
-				if waiting then
-					prefix = wezterm.nerdfonts.md_bell_ring .. " "
-				elseif working then
-					prefix = wezterm.nerdfonts.md_loading .. " "
-				elseif has_claude then
-					prefix = wezterm.nerdfonts.md_robot .. " "
+				if working then
+					prefix = wezterm.nerdfonts.md_progress_clock .. "  "
+				elseif has_ai then
+					prefix = wezterm.nerdfonts.md_robot .. "  "
 				end
 				table.insert(choices, { label = prefix .. name, id = name })
 			end
@@ -228,9 +227,6 @@ config.key_tables = {
 config.use_fancy_tab_bar = false
 config.status_update_interval = 1000
 wezterm.on("update-status", function(window, pane)
-	-- Clear bell flag for the focused pane
-	pane_bells[pane:pane_id()] = nil
-
 	local shorten_name = function(s)
 		return string.gsub(s, "(.*[/\\])(.*)", "%2")
 	end
@@ -264,20 +260,22 @@ wezterm.on("update-status", function(window, pane)
 		{ Text = " " },
 	}))
 
-	-- Workspace list with Claude state
+	-- Workspace list with AI agent state
 	local active_ws = window:active_workspace()
 	local right = {}
-	for _, name in ipairs(wezterm.mux.get_workspace_names()) do
-		local has_claude, waiting, working = workspace_status(name)
-		if waiting then
-			table.insert(right, { Foreground = { Color = custom_colors.red } })
-			table.insert(right, { Text = wezterm.nerdfonts.md_bell_ring .. " " })
-		elseif working then
-			table.insert(right, { Foreground = { Color = custom_colors.yellow } })
-			table.insert(right, { Text = wezterm.nerdfonts.md_loading .. " " })
-		elseif has_claude then
+	for i, name in ipairs(wezterm.mux.get_workspace_names()) do
+		if i > 1 then
 			table.insert(right, "ResetAttributes")
-			table.insert(right, { Text = wezterm.nerdfonts.md_robot .. " " })
+			table.insert(right, { Foreground = { Color = "#6c7086" } })
+			table.insert(right, { Text = " · " })
+		end
+		local has_ai, working = workspace_status(name)
+		if working then
+			table.insert(right, { Foreground = { Color = custom_colors.yellow } })
+			table.insert(right, { Text = wezterm.nerdfonts.md_progress_clock .. "  " })
+		elseif has_ai then
+			table.insert(right, "ResetAttributes")
+			table.insert(right, { Text = wezterm.nerdfonts.md_robot .. "  " })
 		end
 		if name == active_ws then
 			table.insert(right, { Foreground = { Color = custom_colors.cyan } })
@@ -287,9 +285,8 @@ wezterm.on("update-status", function(window, pane)
 		end
 		table.insert(right, { Text = name })
 		table.insert(right, "ResetAttributes")
-		table.insert(right, { Text = "  " })
 	end
-	table.insert(right, { Text = "| " })
+	table.insert(right, { Text = "  | " })
 	table.insert(right, { Text = wezterm.nerdfonts.md_folder .. " " .. cwd })
 	table.insert(right, { Text = " | " })
 	table.insert(right, { Foreground = { Color = custom_colors.yellow } })
