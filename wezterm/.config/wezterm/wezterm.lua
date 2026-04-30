@@ -89,7 +89,7 @@ local function workspace_status(name)
 end
 
 -- Keybinds
-config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = math.huge }
+config.leader = { key = "Space", mods = "CTRL", timeout_milliseconds = math.maxinteger }
 config.keys = {
 	-- Navigate
 	{ key = "g", mods = "LEADER", action = act.ScrollToTop },
