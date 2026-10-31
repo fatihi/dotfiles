@@ -8,12 +8,12 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 |---------|-------|
 | `bash`  | `.bashrc`, `.profile`, `.inputrc` |
 | `git`   | `.gitconfig` |
-| `awesome` | `.config/awesome/rc.lua` (started from the awesome 4.3 default) |
+| `awesome` | `.config/awesome/rc.lua` (started from the awesome 4.3 default; terminal: wezterm) |
 
 ## Setup on a new machine
 
 ```bash
-sudo zypper install git stow
+sudo zypper install git stow awesome wezterm
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
