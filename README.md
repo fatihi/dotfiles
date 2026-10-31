@@ -10,6 +10,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `git`   | `.gitconfig` |
 | `awesome` | `.config/awesome/rc.lua` (started from the awesome 4.3 default; terminal: wezterm) |
 | `wezterm` | `.config/wezterm/wezterm.lua` (font, colour scheme, tab bar) |
+| `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini` (dark mode) |
 
 ## Setup on a new machine
 
@@ -20,7 +21,9 @@ git clone <repo-url> ~/Projects/dotfiles
 ```
 
 `install.sh` moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
-and then symlinks every package into `$HOME`. It is safe to re-run.
+and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
+keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
+files. It is safe to re-run.
 
 ## Day to day
 

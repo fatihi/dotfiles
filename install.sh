@@ -34,4 +34,10 @@ stow --restow --no-folding --target="$HOME" "${packages[@]}"
 # 5. Create local, untracked override files
 [[ -e "$HOME/.bashrc.local" ]] || touch "$HOME/.bashrc.local"
 
+# 6. Dark mode for apps that read dconf instead of files (libadwaita, Firefox)
+if command -v gsettings >/dev/null; then
+  gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+  gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+fi
+
 echo "Done."
