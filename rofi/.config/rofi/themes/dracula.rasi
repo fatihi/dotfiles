@@ -1,0 +1,70 @@
+// Dracula theme for rofi (palette: https://draculatheme.com/contribute)
+* {
+    bg:       #282a36;
+    bg-alt:   #44475a;
+    fg:       #f8f8f2;
+    comment:  #6272a4;
+    purple:   #bd93f9;
+    pink:     #ff79c6;
+
+    background-color: transparent;
+    text-color:       @fg;
+    font:             "sans 11";
+}
+
+window {
+    background-color: @bg;
+    border:           2px;
+    border-color:     @purple;
+    border-radius:    6px;
+    width:            40%;
+    padding:          12px;
+}
+
+mainbox {
+    spacing:  8px;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius:    4px;
+    padding:          8px;
+    spacing:          8px;
+    children:         [ prompt, entry ];
+}
+
+prompt {
+    text-color: @purple;
+}
+
+entry {
+    placeholder:       "Search…";
+    placeholder-color: @comment;
+}
+
+listview {
+    lines:     10;
+    columns:   1;
+    scrollbar: false;
+    spacing:   2px;
+}
+
+element {
+    padding:       6px 8px;
+    border-radius: 4px;
+    spacing:       8px;
+}
+
+element selected.normal {
+    background-color: @purple;
+    text-color:       @bg;
+}
+
+element-icon {
+    size: 1.2em;
+}
+
+element-text {
+    text-color: inherit;
+}
