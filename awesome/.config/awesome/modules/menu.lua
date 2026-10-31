@@ -14,7 +14,7 @@ local function lookup_icon(icon, size)
 end
 
 local system_menu = {
-    { "Lock Screen",     "light-locker-command --lock",  lookup_icon("system-lock-screen", 16) },
+    { "Lock Screen",     vars.lock_cmd,                  lookup_icon("system-lock-screen", 16) },
     { "Logout",          function() awesome.quit() end,  lookup_icon("system-log-out", 16)     },
     { "Reboot System",   "systemctl reboot",             lookup_icon("system-restart", 16)     },
     { "Shutdown System", "systemctl poweroff",           lookup_icon("system-shutdown", 16)    },

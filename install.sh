@@ -10,9 +10,12 @@ for cmd in git stow; do
   command -v "$cmd" >/dev/null || { echo "Missing $cmd: sudo zypper install $cmd" >&2; exit 1; }
 done
 
-# 2. Collect packages (every top-level folder)
+# 2. Collect packages (every top-level folder except system/, see step 7)
 packages=()
-for d in */; do packages+=("${d%/}"); done
+for d in */; do
+  [[ "$d" == "system/" ]] && continue
+  packages+=("${d%/}")
+done
 
 # 3. Back up real files that would conflict, so stow doesn't abort
 backup="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
@@ -38,6 +41,20 @@ stow --restow --no-folding --target="$HOME" "${packages[@]}"
 if command -v gsettings >/dev/null; then
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
   gsettings set org.gnome.desktop.interface gtk-theme 'dracula-gtk-theme'
+fi
+
+# 7. System files outside $HOME: system/etc/foo is copied to /etc/foo.
+#    Uses sudo, and only for files that differ. The original is kept as *.orig.
+if [[ -d system ]]; then
+  while IFS= read -r -d '' f; do
+    dst="/${f#system/}"
+    cmp -s "$f" "$dst" && continue
+    echo "Installing $dst (needs sudo)"
+    if [[ -e "$dst" && ! -e "$dst.orig" ]]; then
+      sudo cp -p "$dst" "$dst.orig"
+    fi
+    sudo install -D -m 644 "$f" "$dst"
+  done < <(find system -type f -print0)
 fi
 
 echo "Done."

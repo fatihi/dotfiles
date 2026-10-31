@@ -10,6 +10,14 @@ vars.editor_cmd = vars.terminal .. " -e " .. vars.editor
 vars.kbd_layout  = "de"
 vars.kbd_variant = "us"
 
+-- Lock screen: light-locker hands over to the LightDM greeter
+vars.lock_cmd = "light-locker-command --lock"
+
+-- Idle: blank the screen after 5 min, lock 10 s later, monitor off after 10 min
+vars.idle_blank_seconds = 300
+vars.idle_lock_delay    = 10
+vars.idle_off_seconds   = 600
+
 -- Screenshots taken with Shift+Print are saved here
 vars.screenshot_dir = os.getenv("HOME") .. "/Pictures/Screenshots"
 

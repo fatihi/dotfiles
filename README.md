@@ -12,13 +12,14 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
+| `system` | Not stowed: files copied to `/` with sudo by `install.sh` — `etc/lightdm/lightdm-gtk-greeter.conf` (Dracula login/lock screen) |
 | `locale` | `.i18n` (English language and number format, otherwise German formats; openSUSE reads it at login) |
 
 ## Setup on a new machine
 
 ```bash
 sudo zypper install git stow awesome wezterm gtk3-metatheme-dracula gtk4-metatheme-dracula \
-                    brightnessctl flameshot rofi NetworkManager-applet
+                    brightnessctl flameshot rofi NetworkManager-applet light-locker
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -26,7 +27,9 @@ git clone <repo-url> ~/Projects/dotfiles
 `install.sh` moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
 and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
 keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
-files. It is safe to re-run.
+files. Finally it copies everything under `system/` to the same path under `/`
+(with sudo, only files that changed; the first time, the original is kept as
+`*.orig`). It is safe to re-run.
 
 Theme: Dracula everywhere (awesome, wezterm, GTK 3/4). GTK 4 / libadwaita apps
 ignore theme names, so `gtk.css` imports the Dracula CSS directly.
@@ -38,7 +41,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 
 | Module | Contents |
 |--------|----------|
-| `vars.lua` | terminal (wezterm), modkey, keyboard layout (`de` variant `us`), screenshot folder |
+| `vars.lua` | terminal (wezterm), modkey, keyboard layout (`de` variant `us`), lock command and idle times, screenshot folder |
 | `layouts.lua` | tile (default), tile.bottom, max, floating |
 | `menu.lua` | main menu and launcher icon |
 | `widgets.lua` | volume (wpctl), cpu, battery, clock with calendar popup |
@@ -46,7 +49,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `keys.lua` | all key and mouse bindings |
 | `rules.lua` | rules for new windows |
 | `signals.lua` | titlebars only on floating windows/dialogs, focus, borders |
-| `autostart.lua` | `setxkbmap`, `nm-applet` |
+| `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `nm-applet` |
 
 Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 
@@ -55,8 +58,13 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 | `Mod4+p` / `Mod4+Shift+p` | rofi: apps / commands |
 | Volume keys, mic mute | `wpctl` (also: click volume widget to mute, scroll to change) |
 | Brightness keys | `brightnessctl` |
+| `Mod4+Ctrl+Escape` | lock screen |
 | `Print` | flameshot: select area |
 | `Shift+Print` | flameshot: whole screen, saved to `~/Pictures/Screenshots` and clipboard |
+
+Lock screen: `light-locker` hands over to the LightDM greeter. The screen blanks
+after 5 minutes idle and locks 10 seconds later; it also locks on suspend and
+lid close. The monitor turns off after 10 minutes.
 
 ## Day to day
 
@@ -67,6 +75,7 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
   a broken `rc.lua` makes awesome fall back to the system default config.
 - wezterm reloads its config automatically on save; check for errors with
   `wezterm show-keys >/dev/null`.
+- Files in `system/` only take effect after running `./install.sh` again.
 - Locale changes in `.i18n` apply after logging out and in.
 - Manual stow from the repo root: `stow <pkg>` / `stow -D <pkg>` (`.stowrc` sets
   the target to `~` and disables folding).

@@ -59,6 +59,8 @@ local globalkeys = gears.table.join(
               { description = "reload awesome", group = "awesome" }),
     awful.key({ modkey, "Shift" }, "q", awesome.quit,
               { description = "quit awesome", group = "awesome" }),
+    awful.key({ modkey, "Control" }, "Escape", function() awful.spawn(vars.lock_cmd) end,
+              { description = "lock screen", group = "awesome" }),
     awful.key({ modkey }, "x", function()
         awful.prompt.run {
             prompt       = "Run Lua code: ",
