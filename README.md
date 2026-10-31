@@ -8,8 +8,8 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 |---------|-------|
 | `bash`  | `.bashrc`, `.profile`, `.inputrc` |
 | `git`   | `.gitconfig` |
-| `awesome` | `.config/awesome/rc.lua` (started from the awesome 4.3 default; terminal: wezterm) |
-| `wezterm` | `.config/wezterm/wezterm.lua` (font, colour scheme, tab bar) |
+| `awesome` | `.config/awesome/rc.lua` (based on the awesome 4.3 default; terminal: wezterm), `.config/awesome/themes/theme.lua` (Dracula) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini` (dark mode) |
 
 ## Setup on a new machine

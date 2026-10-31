@@ -13,7 +13,7 @@ config.font = wezterm.font_with_fallback({
 config.font_size = 11.0
 
 -- Colours (any name from https://wezfurlong.org/wezterm/colorschemes/)
-config.color_scheme = "Catppuccin Mocha"
+config.color_scheme = "Dracula (Official)"
 
 -- Tab bar: simple style, hidden while only one tab is open
 config.use_fancy_tab_bar = false

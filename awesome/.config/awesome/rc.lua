@@ -193,9 +193,9 @@ mybattery = wibox.widget.textbox()
 vicious.register(mybattery, function(format, warg)
     local args = vicious.widgets.bat(format, warg)
     if args[2] < 50 then
-        args['{color}'] = 'red'
+        args['{color}'] = beautiful.dracula and beautiful.dracula.red or 'red'
     else
-        args['{color}'] = 'green'
+        args['{color}'] = beautiful.dracula and beautiful.dracula.green or 'green'
     end
     return args
 end, '<span foreground="${color}">bat: $2% $3h</span>', 10, 'BAT0')
