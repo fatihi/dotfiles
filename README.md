@@ -7,7 +7,6 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | Package | Files |
 |---------|-------|
 | `bash`  | `.bashrc`, `.profile`, `.inputrc` |
-| `emacs` | `.emacs` |
 | `git`   | `.gitconfig` |
 
 ## Setup on a new machine
