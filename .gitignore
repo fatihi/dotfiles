@@ -1,0 +1,7 @@
+# Never commit secrets or machine-local overrides
+*.local
+.env
+id_*
+!id_*.pub
+*.pem
+*.key
