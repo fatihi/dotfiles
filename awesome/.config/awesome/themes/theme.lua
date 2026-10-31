@@ -34,6 +34,13 @@ theme.fg_focus    = c.fg
 theme.fg_urgent   = c.bg
 theme.fg_minimize = c.comment
 
+-- Icons for menus and the launcher
+theme.icon_theme = "Adwaita"
+
+-- Gaps between tiled windows, slightly thicker border to show focus
+theme.useless_gap   = 4
+theme.border_width  = 2
+
 theme.border_normal = c.selection
 theme.border_focus  = c.purple
 theme.border_marked = c.pink
@@ -57,6 +64,15 @@ theme.hotkeys_bg           = c.bg
 theme.hotkeys_fg           = c.fg
 theme.hotkeys_border_color = c.purple
 theme.hotkeys_modifiers_fg = c.comment
+
+-- The openSUSE theme references titlebar icons for unfocused windows that the
+-- package doesn't ship; fall back to the focused-window versions.
+for key, path in pairs(theme) do
+  if type(path) == "string" and key:match("^titlebar_.*_normal")
+      and not gears.filesystem.file_readable(path) then
+    theme[key] = path:gsub("_normal_", "_focus_")
+  end
+end
 
 -- Solid Dracula background instead of the green openSUSE wallpaper
 theme.wallpaper = function(s)
