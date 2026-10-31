@@ -12,6 +12,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
+| `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |
 | `system` | Not stowed: files copied to `/` with sudo by `install.sh` — `etc/lightdm/lightdm-gtk-greeter.conf` (Dracula login/lock screen) |
 | `locale` | `.i18n` (English language and number format, otherwise German formats; openSUSE reads it at login) |
 
@@ -75,6 +76,8 @@ lid close. The monitor turns off after 10 minutes.
   a broken `rc.lua` makes awesome fall back to the system default config.
 - wezterm reloads its config automatically on save; check for errors with
   `wezterm show-keys >/dev/null`.
+- flameshot: settings changed in its GUI are written to the same file; check
+  `git diff` afterwards. Restart it (`pkill -x flameshot`) after editing the file.
 - Files in `system/` only take effect after running `./install.sh` again.
 - Locale changes in `.i18n` apply after logging out and in.
 - Manual stow from the repo root: `stow <pkg>` / `stow -D <pkg>` (`.stowrc` sets
