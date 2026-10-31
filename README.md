@@ -12,7 +12,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
-| `locale` | `.i18n` (English language, German formats; openSUSE reads it at login) |
+| `locale` | `.i18n` (English language and number format, otherwise German formats; openSUSE reads it at login) |
 
 ## Setup on a new machine
 

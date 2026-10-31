@@ -2,13 +2,13 @@
 # for login shells and the graphical session). Log out and in to apply.
 #
 # English language (messages, menus) with German formats
-# (dates, numbers, currency, paper size, units, sorting).
+# (dates, currency, paper size, units, sorting). Numbers stay English.
 
 export LANG=en_US.UTF-8
 export LC_MESSAGES=en_US.UTF-8
 
 export LC_CTYPE=de_DE.UTF-8
-export LC_NUMERIC=de_DE.UTF-8
+export LC_NUMERIC=en_US.UTF-8   # 3.14, so scripts doing decimal maths keep working
 export LC_TIME=de_DE.UTF-8
 export LC_COLLATE=de_DE.UTF-8
 export LC_MONETARY=de_DE.UTF-8
