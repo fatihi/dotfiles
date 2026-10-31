@@ -10,12 +10,12 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `git`   | `.gitconfig` |
 | `awesome` | `.config/awesome/rc.lua` (based on the awesome 4.3 default; terminal: wezterm), `.config/awesome/themes/theme.lua` (Dracula) |
 | `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
-| `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini` (dark mode) |
+| `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 
 ## Setup on a new machine
 
 ```bash
-sudo zypper install git stow awesome wezterm
+sudo zypper install git stow awesome wezterm gtk3-metatheme-dracula gtk4-metatheme-dracula
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -24,6 +24,9 @@ git clone <repo-url> ~/Projects/dotfiles
 and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
 keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
 files. It is safe to re-run.
+
+Theme: Dracula everywhere (awesome, wezterm, GTK 3/4). GTK 4 / libadwaita apps
+ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 
 ## Day to day
 
