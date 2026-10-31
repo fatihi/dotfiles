@@ -9,6 +9,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `bash`  | `.bashrc`, `.profile`, `.inputrc` |
 | `git`   | `.gitconfig` |
 | `awesome` | `.config/awesome/rc.lua` (started from the awesome 4.3 default; terminal: wezterm) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font, colour scheme, tab bar) |
 
 ## Setup on a new machine
 
@@ -28,6 +29,8 @@ and then symlinks every package into `$HOME`. It is safe to re-run.
   run `./install.sh`.
 - awesome: check changes with `awesome -k` before reloading (`Mod4+Ctrl+r`);
   a broken `rc.lua` makes awesome fall back to the system default config.
+- wezterm reloads its config automatically on save; check for errors with
+  `wezterm show-keys >/dev/null`.
 - Manual stow from the repo root: `stow <pkg>` / `stow -D <pkg>` (`.stowrc` sets
   the target to `~` and disables folding).
 
