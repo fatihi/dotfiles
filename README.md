@@ -13,7 +13,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
 | `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |
-| `system` | Not stowed: files copied to `/` with sudo by `install.sh` — `etc/lightdm/lightdm-gtk-greeter.conf` (Dracula login/lock screen) |
+| `system` | Not stowed: files copied to `/` with sudo by `install.sh` — `etc/lightdm/lightdm-gtk-greeter.conf` (Dracula login/lock screen), `etc/X11/xorg.conf.d/60-touchpad.conf` (tap to click, two-finger tap = right click, natural scrolling) |
 | `locale` | `.i18n` (English language and number format, otherwise German formats; openSUSE reads it at login) |
 
 ## Setup on a new machine
@@ -49,7 +49,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `bar.lua` | wallpaper, tags, top bar |
 | `keys.lua` | all key and mouse bindings |
 | `rules.lua` | rules for new windows |
-| `signals.lua` | titlebars only on floating windows/dialogs, focus, borders |
+| `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus, borders |
 | `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `nm-applet` |
 
 Keys beyond the awesome defaults (`Mod4+F1` lists everything):
