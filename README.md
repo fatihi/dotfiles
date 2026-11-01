@@ -59,6 +59,8 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 | `Mod4+p` / `Mod4+Shift+p` | rofi: apps / commands |
 | Volume keys, mic mute | `wpctl` (also: click volume widget to mute, scroll to change) |
 | Brightness keys | `brightnessctl` |
+| `Mod4+Alt+h/l` / `Mod4+Alt+k/j` | resize window: narrower/wider, shorter/taller (tiled: changes the split and the window's share of its stack) |
+| `Mod4+Shift` + left-drag | resize window with the mouse (works with touchpad tap-and-drag) |
 | `Mod4+Ctrl+Escape` | lock screen |
 | `Print` | flameshot: select area |
 | `Shift+Print` | flameshot: whole screen, saved to `~/Pictures/Screenshots` and clipboard |

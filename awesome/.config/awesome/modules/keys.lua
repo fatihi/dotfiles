@@ -193,7 +193,45 @@ root.keys(globalkeys)
 -- }}}
 
 -- {{{ Client keys and buttons (applied through rules.lua)
-keys.client = gears.table.join(
+
+-- Resize the focused window from the keyboard (Mod4+Alt+h/j/k/l).
+--   Floating: h/l = narrower/wider, k/j = shorter/taller, in pixels.
+--   Tiled:    h/l = shrink/grow the window across the main split,
+--             k/j = shrink/grow the window within its stack.
+local resize_step_px     = 40
+local resize_step_factor = 0.05
+
+local function resize(c, key)
+    local floating = c.floating
+        or awful.layout.get(c.screen) == awful.layout.suit.floating
+    if floating then
+        local dw, dh = 0, 0
+        if key == "h" then dw = -resize_step_px
+        elseif key == "l" then dw = resize_step_px
+        elseif key == "k" then dh = -resize_step_px
+        elseif key == "j" then dh = resize_step_px end
+        c:relative_move(0, 0, dw, dh)
+    else
+        if key == "h" or key == "l" then
+            -- Column 0 is the main area: growing it means a bigger main factor,
+            -- growing a window in the stack means a smaller one.
+            local in_main = awful.client.idx(c) and awful.client.idx(c).col == 0
+            local delta = (key == "l") and resize_step_factor or -resize_step_factor
+            awful.tag.incmwfact(in_main and delta or -delta)
+        else
+            awful.client.incwfact((key == "j") and resize_step_factor or -resize_step_factor, c)
+        end
+    end
+end
+
+local resize_keys = {}
+for key, description in pairs({ h = "narrower", l = "wider", k = "shorter", j = "taller" }) do
+    resize_keys = gears.table.join(resize_keys,
+        awful.key({ modkey, "Mod1" }, key, function(c) resize(c, key) end,
+                  { description = "resize window: " .. description, group = "client" }))
+end
+
+keys.client = gears.table.join(resize_keys,
     awful.key({ modkey }, "f", function(c)
         c.fullscreen = not c.fullscreen
         c:raise()
@@ -219,7 +257,9 @@ keys.client = gears.table.join(
 keys.client_buttons = gears.table.join(
     awful.button({ }, 1, function(c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize)
+    awful.button({ modkey }, 3, awful.mouse.client.resize),
+    -- Touchpad-friendly resize: tap-and-drag holds the left button
+    awful.button({ modkey, "Shift" }, 1, awful.mouse.client.resize)
 )
 -- }}}
 
