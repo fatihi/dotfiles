@@ -32,7 +32,7 @@ client.connect_signal("request::titlebars", function(c)
             awful.mouse.client.resize(c)
         end)
     )
-    awful.titlebar(c):setup {
+    awful.titlebar(c, { size = 22 }):setup {
         { -- Left
             awful.titlebar.widget.iconwidget(c),
             buttons = buttons,
@@ -43,11 +43,10 @@ client.connect_signal("request::titlebars", function(c)
             buttons = buttons,
             layout  = wibox.layout.flex.horizontal,
         },
-        { -- Right
+        { -- Right: floating (purple), maximize (green), close (red).
+          -- ontopbutton/stickybutton also exist and are themed; on-top is Mod4+t.
             awful.titlebar.widget.floatingbutton (c),
             awful.titlebar.widget.maximizedbutton(c),
-            awful.titlebar.widget.stickybutton   (c),
-            awful.titlebar.widget.ontopbutton    (c),
             awful.titlebar.widget.closebutton    (c),
             layout = wibox.layout.fixed.horizontal(),
         },

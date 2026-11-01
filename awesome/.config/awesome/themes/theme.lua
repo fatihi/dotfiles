@@ -65,14 +65,51 @@ theme.hotkeys_fg           = c.fg
 theme.hotkeys_border_color = c.purple
 theme.hotkeys_modifiers_fg = c.comment
 
--- The openSUSE theme references titlebar icons for unfocused windows that the
--- package doesn't ship; fall back to the focused-window versions.
-for key, path in pairs(theme) do
-  if type(path) == "string" and key:match("^titlebar_.*_normal")
-      and not gears.filesystem.file_readable(path) then
-    theme[key] = path:gsub("_normal_", "_focus_")
+-- {{{ Titlebar buttons: Dracula-coloured dots drawn in code (no image files)
+-- Focused window: filled dot = on, ring = off. Unfocused window: grey.
+-- Hovering a button shows it in the foreground colour.
+local cairo = require("lgi").cairo
+
+local function dot(color, ring)
+  local size = 64
+  local surface = cairo.ImageSurface.create(cairo.Format.ARGB32, size, size)
+  local cr = cairo.Context(surface)
+  cr:set_source(gears.color(color))
+  cr:arc(size / 2, size / 2, size * 0.25, 0, 2 * math.pi)
+  if ring then
+    cr:set_line_width(size * 0.08)
+    cr:stroke()
+  else
+    cr:fill()
   end
+  return surface
 end
+
+-- Close button (no on/off state)
+theme.titlebar_close_button_focus        = dot(c.red)
+theme.titlebar_close_button_normal       = dot(c.comment)
+theme.titlebar_close_button_focus_hover  = dot(c.fg)
+theme.titlebar_close_button_normal_hover = dot(c.fg)
+
+-- Toggle buttons
+local toggles = {
+  floating  = c.purple,
+  maximized = c.green,
+  ontop     = c.yellow,
+  sticky    = c.cyan,
+}
+for name, color in pairs(toggles) do
+  local prefix = "titlebar_" .. name .. "_button_"
+  theme[prefix .. "focus_active"]          = dot(color)
+  theme[prefix .. "focus_inactive"]        = dot(color, true)
+  theme[prefix .. "normal_active"]         = dot(c.comment)
+  theme[prefix .. "normal_inactive"]       = dot(c.comment, true)
+  theme[prefix .. "focus_active_hover"]    = dot(c.fg)
+  theme[prefix .. "focus_inactive_hover"]  = dot(c.fg, true)
+  theme[prefix .. "normal_active_hover"]   = dot(c.fg)
+  theme[prefix .. "normal_inactive_hover"] = dot(c.fg, true)
+end
+-- }}}
 
 -- Solid Dracula background instead of the green openSUSE wallpaper
 theme.wallpaper = function(s)
