@@ -117,6 +117,13 @@ awful.screen.connect_for_each_screen(function(s)
         screen  = s,
         filter  = awful.widget.tasklist.filter.currenttags,
         buttons = tasklist_buttons,
+        -- Each task at most this wide, so a few windows don't fill the whole bar
+        -- with long titles (they get cut off with "...")
+        layout  = {
+            layout          = wibox.layout.flex.horizontal,
+            max_widget_size = sdpi(300),
+            spacing         = beautiful.tasklist_spacing,
+        },
         widget_template = {
             {
                 {
@@ -145,6 +152,7 @@ awful.screen.connect_for_each_screen(function(s)
         { wibox.widget.systray(), top = sdpi(4), bottom = sdpi(4),
           widget = wibox.container.margin },
         s.systray_separator,
+        widgets.dnd.widget,
         widgets.volume.widget,
         widgets.separator,
         widgets.cpu,

@@ -40,6 +40,7 @@ function widgets.osd(kind, title, pct)
         timeout     = 1.5,
         replaces_id = osd_ids[kind],
         position    = "top_middle",
+        ignore_suspend = true,  -- you pressed the key, so show it even in do-not-disturb
     })
     if n then osd_ids[kind] = n.id end
 end
@@ -59,6 +60,26 @@ function widgets.new_separator()
     }
 end
 widgets.separator = widgets.new_separator()
+
+-- {{{ Do not disturb (Mod4+Shift+d): notifications are held back and shown when it
+-- is turned off. The bar shows "dnd" while it is on. Battery warnings and the
+-- volume/brightness popups still appear.
+widgets.dnd = {}
+widgets.dnd.widget = wibox.widget {
+    {
+        markup = colored("dnd", colors.orange),
+        widget = wibox.widget.textbox,
+    },
+    widgets.new_separator(),
+    visible = false,
+    layout  = wibox.layout.fixed.horizontal,
+}
+
+function widgets.dnd.toggle()
+    naughty.toggle()
+    widgets.dnd.widget.visible = naughty.is_suspended()
+end
+-- }}}
 
 -- {{{ Clock (German format via LC_TIME) with a month calendar on click
 widgets.clock = wibox.widget.textclock(
@@ -128,6 +149,7 @@ if widgets.battery then vicious.register(widgets.battery, vicious.widgets.bat, f
                 battery_warned[level] = true
                 naughty.notify({
                     preset = naughty.config.presets.critical,
+                    ignore_suspend = true,  -- also in do-not-disturb
                     title  = "Battery low: " .. pct .. "%",
                     text   = "Plug in the charger" .. (time and " (" .. time .. "h left)." or "."),
                 })

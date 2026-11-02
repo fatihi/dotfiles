@@ -1,4 +1,5 @@
-// rofi configuration. Opened with Mod4+p (apps) and Mod4+Shift+p (commands).
+// rofi configuration. Opened with Mod4+p (apps), Mod4+Shift+p (commands) and
+// Mod4+Shift+Tab (windows). awesome adds -dpi so text matches its bar on each screen.
 configuration {
     modi:               "drun,run,window";
     show-icons:         true;

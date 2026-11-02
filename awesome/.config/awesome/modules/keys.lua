@@ -6,6 +6,7 @@ local vars          = require("modules.vars")
 local menu          = require("modules.menu")
 local widgets       = require("modules.widgets")
 local power         = require("modules.power")
+local scaling       = require("modules.scaling")
 local gfs           = require("gears.filesystem")
 
 local modkey   = vars.modkey
@@ -98,20 +99,15 @@ local globalkeys = gears.table.join(
               { description = "move focused client to next tag and follow", group = "tag" }),
 
     -- Client focus and order
-    awful.key({ modkey }, "j", function() awful.client.focus.byidx( 1) end,
-              { description = "focus next by index", group = "client" }),
-    awful.key({ modkey }, "k", function() awful.client.focus.byidx(-1) end,
-              { description = "focus previous by index", group = "client" }),
-    awful.key({ modkey, "Shift" }, "j", function() awful.client.swap.byidx( 1) end,
-              { description = "swap with next client by index", group = "client" }),
-    awful.key({ modkey, "Shift" }, "k", function() awful.client.swap.byidx(-1) end,
-              { description = "swap with previous client by index", group = "client" }),
+    -- Focus/swap by direction (h/j/k/l = left/down/up/right) are added below the table
     awful.key({ modkey }, "u", awful.client.urgent.jumpto,
               { description = "jump to urgent client", group = "client" }),
     awful.key({ modkey }, "Tab", function()
         awful.client.focus.history.previous()
         if client.focus then client.focus:raise() end
     end, { description = "go back", group = "client" }),
+    awful.key({ modkey, "Shift" }, "Tab", function() awful.spawn(scaling.rofi("-show window")) end,
+              { description = "switch to any window (rofi)", group = "client" }),
     awful.key({ modkey, "Control" }, "n", function()
         local c = awful.client.restore()
         if c then
@@ -127,13 +123,10 @@ local globalkeys = gears.table.join(
               { description = "focus the previous screen", group = "screen" }),
 
     -- Layout
-    awful.key({ modkey }, "l", function() awful.tag.incmwfact( 0.05) end,
-              { description = "increase master width factor", group = "layout" }),
-    awful.key({ modkey }, "h", function() awful.tag.incmwfact(-0.05) end,
-              { description = "decrease master width factor", group = "layout" }),
-    awful.key({ modkey, "Shift" }, "h", function() awful.tag.incnmaster( 1, nil, true) end,
+    -- Master width: Mod4+Alt+h/l (resize keys, client group)
+    awful.key({ modkey, "Control", "Shift" }, "h", function() awful.tag.incnmaster( 1, nil, true) end,
               { description = "increase the number of master clients", group = "layout" }),
-    awful.key({ modkey, "Shift" }, "l", function() awful.tag.incnmaster(-1, nil, true) end,
+    awful.key({ modkey, "Control", "Shift" }, "l", function() awful.tag.incnmaster(-1, nil, true) end,
               { description = "decrease the number of master clients", group = "layout" }),
     awful.key({ modkey, "Control" }, "h", function() awful.tag.incncol( 1, nil, true) end,
               { description = "increase the number of columns", group = "layout" }),
@@ -147,9 +140,9 @@ local globalkeys = gears.table.join(
     -- Launchers
     awful.key({ modkey }, "Return", function() awful.spawn(terminal) end,
               { description = "open a terminal", group = "launcher" }),
-    awful.key({ modkey }, "p", function() awful.spawn("rofi -show drun") end,
+    awful.key({ modkey }, "p", function() awful.spawn(scaling.rofi("-show drun")) end,
               { description = "app launcher (rofi)", group = "launcher" }),
-    awful.key({ modkey, "Shift" }, "p", function() awful.spawn("rofi -show run") end,
+    awful.key({ modkey, "Shift" }, "p", function() awful.spawn(scaling.rofi("-show run")) end,
               { description = "run command (rofi)", group = "launcher" }),
     awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
               { description = "run prompt", group = "launcher" }),
@@ -198,6 +191,27 @@ local globalkeys = gears.table.join(
             vars.screenshot_dir, vars.screenshot_dir))
     end, { description = "screenshot: whole screen (saved + clipboard)", group = "screenshot" })
 )
+
+-- Mod4+h/j/k/l: focus the window to the left/below/above/to the right (crosses to
+-- another monitor at the screen edge). +Shift: swap with that window.
+for key, dir in pairs({ h = "left", j = "down", k = "up", l = "right" }) do
+    globalkeys = gears.table.join(globalkeys,
+        awful.key({ modkey }, key, function()
+            awful.client.focus.global_bydirection(dir)
+            if client.focus then client.focus:raise() end
+        end, { description = "focus " .. dir, group = "client" }),
+        awful.key({ modkey, "Shift" }, key, function()
+            awful.client.swap.global_bydirection(dir)
+        end, { description = "swap with the window " .. (dir == "left" and "to the left"
+            or dir == "right" and "to the right" or dir == "up" and "above" or "below"),
+            group = "client" })
+    )
+end
+
+-- Do not disturb: hold back notifications (shown when turned off again)
+globalkeys = gears.table.join(globalkeys,
+    awful.key({ modkey, "Shift" }, "d", widgets.dnd.toggle,
+              { description = "toggle do not disturb", group = "awesome" }))
 
 -- Mod4+1..9: view tag, +Ctrl: toggle tag, +Shift: move window, +Ctrl+Shift: toggle window on tag.
 -- Keycodes (#10..#18) keep this working on any keyboard layout.

@@ -50,7 +50,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `scaling.lua` | size of awesome's own UI per screen: measures each monitor's real DPI and uses 96/120/144 (the 14" 1920x1200 panel gets 1.25x); apps are not affected |
 | `layouts.lua` | tile (default), tile.bottom, max, floating |
 | `menu.lua` | main menu and launcher icon |
-| `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness |
+| `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness; do-not-disturb indicator |
 | `bar.lua` | wallpaper, tags (only those with windows, plus the current one), top bar sized per screen (systray on the primary screen) |
 | `keys.lua` | all key and mouse bindings |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
@@ -62,7 +62,12 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 
 | Key | Action |
 |-----|--------|
-| `Mod4+p` / `Mod4+Shift+p` | rofi: apps / commands |
+| `Mod4+p` / `Mod4+Shift+p` | rofi: apps / commands (awesome passes `-dpi`, so rofi matches the bar's size on each screen) |
+| `Mod4+h/j/k/l` | focus the window to the left / below / above / to the right (continues onto the other monitor at the edge) |
+| `Mod4+Shift+h/j/k/l` | swap with the window in that direction |
+| `Mod4+Shift+Tab` | rofi: switch to any window by title |
+| `Mod4+Ctrl+Shift+h/l` | more / fewer master windows (master width: `Mod4+Alt+h/l`) |
+| `Mod4+Shift+d` | do not disturb: hold back notifications until turned off (`dnd` in the bar; battery warnings and volume/brightness popups still show) |
 | Volume keys, mic mute | `wpctl` (also: click volume widget to mute, scroll to change) |
 | Play/pause, next, previous | `playerctl` (any MPRIS player: browsers, Spotify, mpv) |
 | Brightness keys | `brightnessctl` |

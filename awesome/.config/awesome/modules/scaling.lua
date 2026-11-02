@@ -45,6 +45,13 @@ function scaling.apply(s)
     s.dpi = scaling.screen_dpi(s)
 end
 
+-- rofi command sized like awesome on the focused screen: "rofi -dpi 120 <args>".
+-- (rofi's own dpi: 0 would use the raw panel density, ~160, which is too big.)
+function scaling.rofi(args)
+    local s = require("awful").screen.focused()
+    return string.format("rofi -dpi %d %s", math.floor((s and s.dpi or 96) + 0.5), args)
+end
+
 -- Call before beautiful.init(). Sets every screen's DPI, and uses the highest
 -- one for sizes that are the same on all screens (menus, notifications,
 -- titlebars, gaps), so text never gets cut off. A screen plugged in later gets

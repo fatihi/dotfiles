@@ -1,15 +1,17 @@
 -- Power menu (Mod4+Shift+q): lock, suspend, logout, reboot, shut down via rofi.
 -- Logout, reboot and shut down ask for confirmation first.
 local awful = require("awful")
-local vars  = require("modules.vars")
+local vars    = require("modules.vars")
+local scaling = require("modules.scaling")
 
 local power = {}
 
 -- Ask a question with rofi, call on_choice(choice) with the selected line.
 -- (Labels and prompt are fixed strings below, so plain single quotes are enough.)
 local function rofi_choose(prompt, lines, on_choice)
-    local cmd = string.format("printf '%%s\\n' '%s' | rofi -dmenu -i -no-custom -p '%s'",
-        table.concat(lines, "' '"), prompt)
+    local cmd = string.format("printf '%%s\\n' '%s' | %s",
+        table.concat(lines, "' '"),
+        scaling.rofi(string.format("-dmenu -i -no-custom -p '%s'", prompt)))
     awful.spawn.easy_async_with_shell(cmd, function(out)
         local choice = out:gsub("%s+$", "")
         if choice ~= "" then on_choice(choice) end
