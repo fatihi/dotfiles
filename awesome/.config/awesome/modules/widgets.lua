@@ -6,6 +6,7 @@ local wibox     = require("wibox")
 local beautiful = require("beautiful")
 local naughty   = require("naughty")
 local vicious   = require("vicious")
+local GLib      = require("lgi").GLib
 
 local colors = beautiful.dracula or {}
 local widgets = {}
@@ -60,11 +61,39 @@ vicious.register(widgets.cpu, vicious.widgets.cpu, "cpu: $1%", 2)
 
 -- {{{ Battery: red below 20%, yellow below 50%, green otherwise.
 -- "+" = charging, "-" = discharging. Warns once at 10% and once at 5% while discharging.
+-- widgets.battery is nil on machines without a battery (the bar then leaves it out).
+
+-- First system battery in /sys/class/power_supply (BAT0, BAT1, CMB0, ...).
+-- Skips device batteries such as a wireless mouse (scope = Device).
+local function find_battery()
+    local base = "/sys/class/power_supply/"
+    local ok, dir = pcall(GLib.Dir.open, base, 0)
+    if not ok or not dir then return nil end
+    local function read(path)
+        local f = io.open(path)
+        if not f then return nil end
+        local v = f:read("l")
+        f:close()
+        return v
+    end
+    local found
+    for name in function() return dir:read_name() end do
+        if read(base .. name .. "/type") == "Battery"
+            and read(base .. name .. "/scope") ~= "Device" then
+            found = name
+            break
+        end
+    end
+    dir:close()
+    return found
+end
+
+local battery_name = find_battery()
 local battery_warn_levels = { 10, 5 }
 local battery_warned = {}
 
-widgets.battery = wibox.widget.textbox()
-vicious.register(widgets.battery, vicious.widgets.bat, function(_, args)
+widgets.battery = battery_name and wibox.widget.textbox() or nil
+if widgets.battery then vicious.register(widgets.battery, vicious.widgets.bat, function(_, args)
     local state, pct = args[1], args[2] or 0
     local time = args[3] ~= "N/A" and args[3] or nil  -- "hh:mm" left, unknown right after unplugging
     local discharging = state == "-"
@@ -88,7 +117,7 @@ vicious.register(widgets.battery, vicious.widgets.bat, function(_, args)
     local label = "bat: " .. (state == "+" and "+" or "") .. pct .. "%"
     if discharging and time then label = label .. " " .. time .. "h" end
     return colored(label, color)
-end, 10, "BAT0")
+end, 10, battery_name) end
 -- }}}
 
 -- {{{ Volume (PipeWire via wpctl). Click: mute, scroll: change volume.
@@ -154,7 +183,10 @@ local volume_watch_pid
 local function watch_volume()
     volume_watch_pid = awful.spawn.with_line_callback("pactl subscribe", {
         stdout = function(line)
-            if line:find("on sink") or line:find("on server") then volume_debounce:again() end
+            -- "on sink #" but not "on sink-input #" (individual app streams)
+            if line:find("on sink #", 1, true) or line:find("on server", 1, true) then
+                volume_debounce:again()
+            end
         end,
         exit = function()
             volume_watch_pid = nil

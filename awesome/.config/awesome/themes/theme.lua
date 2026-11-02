@@ -3,8 +3,9 @@
 -- rc.lua loads this file automatically if it exists.
 
 local gears = require("gears")
+local gfs   = require("gears.filesystem")
 
-local theme = dofile("/usr/share/awesome/themes/openSUSE/theme.lua")
+local theme = dofile(gfs.get_themes_dir() .. "openSUSE/theme.lua")
 
 -- Dracula palette
 local c = {
@@ -22,6 +23,9 @@ local c = {
   yellow    = "#f1fa8c",
 }
 theme.dracula = c
+
+-- Font for the bar, menus, titlebars and notifications (same as the openSUSE default)
+theme.font = "sans 9"
 
 theme.bg_normal   = c.bg
 theme.bg_focus    = c.selection

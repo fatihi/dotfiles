@@ -65,6 +65,15 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
+-- The systray only draws on the primary screen (and follows it when the primary
+-- changes), so its separator is hidden on the other screens.
+local function update_systray_separators()
+    for s in screen do
+        if s.systray_separator then s.systray_separator.visible = (s == screen.primary) end
+    end
+end
+screen.connect_signal("primary_changed", update_systray_separators)
+
 awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
@@ -84,6 +93,25 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist  = awful.widget.taglist(s, awful.widget.taglist.filter.noempty, taglist_buttons)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
 
+    s.systray_separator = wibox.widget.textbox(widgets.separator.text)
+    s.systray_separator.visible = (s == screen.primary)
+
+    local right = {
+        layout = wibox.layout.fixed.horizontal,
+        wibox.widget.systray(),
+        s.systray_separator,
+        widgets.volume.widget,
+        widgets.separator,
+        widgets.cpu,
+    }
+    if widgets.battery then  -- nil without a battery
+        table.insert(right, widgets.separator)
+        table.insert(right, widgets.battery)
+    end
+    table.insert(right, widgets.separator)
+    table.insert(right, widgets.clock)
+    table.insert(right, s.mylayoutbox)
+
     s.mywibox = awful.wibar({ position = "top", screen = s })
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
@@ -94,18 +122,6 @@ awful.screen.connect_for_each_screen(function(s)
             s.mypromptbox,
         },
         s.mytasklist, -- Middle
-        { -- Right
-            layout = wibox.layout.fixed.horizontal,
-            wibox.widget.systray(),
-            widgets.separator,
-            widgets.volume.widget,
-            widgets.separator,
-            widgets.cpu,
-            widgets.separator,
-            widgets.battery,
-            widgets.separator,
-            widgets.clock,
-            s.mylayoutbox,
-        },
+        right,
     }
 end)

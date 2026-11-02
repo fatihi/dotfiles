@@ -49,11 +49,11 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `vars.lua` | terminal (wezterm), modkey, keyboard layout (`de` variant `us`), lock command and idle times, screenshot folder |
 | `layouts.lua` | tile (default), tile.bottom, max, floating |
 | `menu.lua` | main menu and launcher icon |
-| `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%), clock with calendar popup; on-screen popups for volume, mic and brightness |
-| `bar.lua` | wallpaper, tags (only those with windows, plus the current one), top bar |
+| `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness |
+| `bar.lua` | wallpaper, tags (only those with windows, plus the current one), top bar (systray on the primary screen) |
 | `keys.lua` | all key and mouse bindings |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
-| `rules.lua` | rules for new windows (dialogs and floating apps open centred) |
+| `rules.lua` | rules for new windows (dialogs and floating apps open centred; class/name values are Lua patterns, so escape `-` and `.` as `%-` and `%.`) |
 | `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus, windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |
 | `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `autorandr --change`, `picom`, polkit agent (`polkit-gnome`), `nm-applet` |
 
@@ -68,6 +68,7 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 | `Mod4+Shift+q` | power menu (replaces the instant quit) |
 | `XF86Display` (Fn key) / `Mod4+Shift+o` | autorandr: next monitor profile / re-apply the matching one |
 | `Mod4+Alt+h/l` / `Mod4+Alt+k/j` | resize window: narrower/wider, shorter/taller (tiled: changes the split and the window's share of its stack) |
+| `Mod4+Shift+Left/Right` | move window to the previous/next tag and follow it |
 | `Mod4+Shift` + left-drag | resize window with the mouse (works with touchpad tap-and-drag) |
 | `Mod4+Ctrl+Escape` | lock screen |
 | `Print` | flameshot: select area |

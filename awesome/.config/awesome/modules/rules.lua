@@ -18,13 +18,16 @@ awful.rules.rules = {
       },
     },
 
-    -- Windows that should always float, centred on the screen
+    -- Windows that should always float, centred on the screen.
+    -- Values are Lua patterns (case-sensitive, partial match): escape - . + * ? [ ] ^ $ ( ) % with %.
     { rule_any = {
+        instance = {
+            "pinentry",
+        },
         class = {
             "Arandr",
-            "pinentry",
-            "pavucontrol", "org.pulseaudio.pavucontrol",
-            "Nm-connection-editor",
+            "Pavucontrol", "org%.pulseaudio%.pavucontrol",
+            "Nm%-connection%-editor",
             "flameshot",
         },
         name = {

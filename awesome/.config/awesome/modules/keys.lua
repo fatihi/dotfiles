@@ -37,9 +37,9 @@ local function ssh_prompt()
                 return cmd, cur_pos
             end
             local matches = {}
-            local prefix = "^" .. cmd:sub(1, cur_pos):gsub("[-]", "[-]")
+            local typed = cmd:sub(1, cur_pos - 1)
             for _, host in ipairs(hosts) do
-                if host:find(prefix) then table.insert(matches, host) end
+                if host:sub(1, #typed) == typed then table.insert(matches, host) end
             end
             if #matches == 0 then return cmd, cur_pos end
             while ncomp > #matches do ncomp = ncomp - #matches end
@@ -47,6 +47,19 @@ local function ssh_prompt()
         end,
         history_path = gfs.get_cache_dir() .. "ssh_history",
     }
+end
+-- }}}
+
+-- {{{ Move the focused window to the previous/next tag (wrapping around) and follow it
+local function move_to_adjacent_tag(direction)
+    local c = client.focus
+    if not c or not c.first_tag then return end
+    local tags = c.screen.tags
+    local target = tags[(c.first_tag.index - 1 + direction) % #tags + 1]
+    c:move_to_tag(target)
+    target:view_only()
+    client.focus = c
+    c:raise()
 end
 -- }}}
 
@@ -61,7 +74,7 @@ local globalkeys = gears.table.join(
               { description = "reload awesome", group = "awesome" }),
     awful.key({ modkey, "Shift" }, "q", power.menu,
               { description = "power menu (lock, suspend, logout, reboot, shut down)", group = "awesome" }),
-    awful.key({ modkey, "Control" }, "Escape", function() awful.spawn(vars.lock_cmd) end,
+    awful.key({ modkey, "Control" }, "Escape", power.lock,
               { description = "lock screen", group = "awesome" }),
     awful.key({ modkey }, "x", function()
         awful.prompt.run {
@@ -79,6 +92,10 @@ local globalkeys = gears.table.join(
               { description = "view next", group = "tag" }),
     awful.key({ modkey }, "Escape", awful.tag.history.restore,
               { description = "go back", group = "tag" }),
+    awful.key({ modkey, "Shift" }, "Left",  function() move_to_adjacent_tag(-1) end,
+              { description = "move focused client to previous tag and follow", group = "tag" }),
+    awful.key({ modkey, "Shift" }, "Right", function() move_to_adjacent_tag( 1) end,
+              { description = "move focused client to next tag and follow", group = "tag" }),
 
     -- Client focus and order
     awful.key({ modkey }, "j", function() awful.client.focus.byidx( 1) end,
@@ -216,8 +233,8 @@ root.keys(globalkeys)
 
 -- Resize the focused window from the keyboard (Mod4+Alt+h/j/k/l).
 --   Floating: h/l = narrower/wider, k/j = shorter/taller, in pixels.
---   Tiled:    h/l = shrink/grow the window across the main split,
---             k/j = shrink/grow the window within its stack.
+--   Tiled:    h/l = narrower/wider, k/j = shorter/taller, by moving the main split
+--             (the key along the split's direction) or the window's share of its stack.
 local resize_step_px     = 40
 local resize_step_factor = 0.05
 
@@ -232,14 +249,22 @@ local function resize(c, key)
         elseif key == "j" then dh = resize_step_px end
         c:relative_move(0, 0, dw, dh)
     else
-        if key == "h" or key == "l" then
+        -- tile/tile.left split left|right (h/l move it); tile.bottom/tile.top split
+        -- top|bottom (k/j move it). The other pair resizes the window within its stack.
+        local layout = awful.layout.get(c.screen)
+        local split_is_vertical = layout == awful.layout.suit.tile.bottom
+            or layout == awful.layout.suit.tile.top
+        local along_split = split_is_vertical == (key == "k" or key == "j")
+        local grow = key == "l" or key == "j"
+        local delta = grow and resize_step_factor or -resize_step_factor
+        if along_split then
             -- Column 0 is the main area: growing it means a bigger main factor,
             -- growing a window in the stack means a smaller one.
-            local in_main = awful.client.idx(c) and awful.client.idx(c).col == 0
-            local delta = (key == "l") and resize_step_factor or -resize_step_factor
+            local idx = awful.client.idx(c)
+            local in_main = idx and idx.col == 0
             awful.tag.incmwfact(in_main and delta or -delta)
         else
-            awful.client.incwfact((key == "j") and resize_step_factor or -resize_step_factor, c)
+            awful.client.incwfact(delta, c)
         end
     end
 end
