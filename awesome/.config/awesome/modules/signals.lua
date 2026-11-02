@@ -32,7 +32,7 @@ client.connect_signal("request::titlebars", function(c)
             awful.mouse.client.resize(c)
         end)
     )
-    awful.titlebar(c, { size = 22 }):setup {
+    awful.titlebar(c, { size = beautiful.titlebar_size }):setup {
         { -- Left
             awful.titlebar.widget.iconwidget(c),
             buttons = buttons,

@@ -8,7 +8,8 @@
 --   rules.lua      rules for new windows
 --   signals.lua    titlebars, focus, borders
 --   autostart.lua  keyboard layout and tray apps
--- Colours, fonts and gaps are in themes/theme.lua.
+--   scaling.lua    size of awesome's UI per screen (DPI)
+-- Colours, fonts, sizes and gaps are in themes/theme.lua.
 
 pcall(require, "luarocks.loader")
 
@@ -38,7 +39,10 @@ do
 end
 -- }}}
 
--- {{{ Theme (must be loaded before the modules)
+-- {{{ Theme (must be loaded before the modules; the DPI before the theme)
+require("modules.scaling").init()
+local dpi = beautiful.xresources.apply_dpi
+
 do
     local user_theme = gfs.get_configuration_dir() .. "themes/theme.lua"
     local f = io.open(user_theme)
@@ -52,11 +56,11 @@ end
 -- }}}
 
 -- {{{ Notifications: spacing and the critical style (colours/border are in the theme)
-naughty.config.padding = 8   -- distance from the screen edge
-naughty.config.spacing = 4   -- distance between notifications
-naughty.config.defaults.margin       = 10
-naughty.config.defaults.border_width = 2
-naughty.config.defaults.icon_size    = 48
+naughty.config.padding = dpi(10)  -- distance from the screen edge
+naughty.config.spacing = dpi(6)   -- distance between notifications
+naughty.config.defaults.margin       = dpi(12)
+naughty.config.defaults.border_width = dpi(2)
+naughty.config.defaults.icon_size    = dpi(48)
 if beautiful.dracula then
     naughty.config.presets.critical.bg = beautiful.dracula.red
     naughty.config.presets.critical.fg = beautiful.dracula.bg

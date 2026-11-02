@@ -6,6 +6,7 @@ local beautiful = require("beautiful")
 local vars      = require("modules.vars")
 local menu      = require("modules.menu")
 local widgets   = require("modules.widgets")
+local scaling   = require("modules.scaling")
 
 local modkey = vars.modkey
 
@@ -29,7 +30,7 @@ local function client_menu_toggle_fn()
             instance:hide()
             instance = nil
         else
-            instance = awful.menu.clients({ theme = { width = 250 } })
+            instance = awful.menu.clients({ theme = { width = beautiful.xresources.apply_dpi(300) } })
         end
     end
 end
@@ -75,6 +76,11 @@ end
 screen.connect_signal("primary_changed", update_systray_separators)
 
 awful.screen.connect_for_each_screen(function(s)
+    -- Sizes in this function are scaled for this screen (see scaling.lua)
+    scaling.apply(s)
+    local function sdpi(v) return beautiful.xresources.apply_dpi(v, s) end
+    local pad = sdpi(beautiful.bar_padding or 8)
+
     set_wallpaper(s)
 
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
@@ -89,16 +95,55 @@ awful.screen.connect_for_each_screen(function(s)
         awful.button({ }, 5, function() awful.layout.inc(-1) end)
     ))
 
-    -- Only tags with windows, plus the one being viewed (Mod4+1..9 still reach all nine)
-    s.mytaglist  = awful.widget.taglist(s, awful.widget.taglist.filter.noempty, taglist_buttons)
-    s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
+    -- Only tags with windows, plus the one being viewed (Mod4+1..9 still reach all nine).
+    -- Each tag is a padded block; the background colour comes from the theme.
+    s.mytaglist = awful.widget.taglist {
+        screen  = s,
+        filter  = awful.widget.taglist.filter.noempty,
+        buttons = taglist_buttons,
+        widget_template = {
+            {
+                { id = "text_role", widget = wibox.widget.textbox },
+                left = sdpi(9), right = sdpi(9),
+                widget = wibox.container.margin,
+            },
+            id     = "background_role",
+            widget = wibox.container.background,
+        },
+    }
 
-    s.systray_separator = wibox.widget.textbox(widgets.separator.text)
+    -- Window list: icon and title with some room around them
+    s.mytasklist = awful.widget.tasklist {
+        screen  = s,
+        filter  = awful.widget.tasklist.filter.currenttags,
+        buttons = tasklist_buttons,
+        widget_template = {
+            {
+                {
+                    {
+                        { id = "icon_role", widget = wibox.widget.imagebox },
+                        margins = sdpi(4),
+                        widget  = wibox.container.margin,
+                    },
+                    { id = "text_role", widget = wibox.widget.textbox },
+                    spacing = sdpi(2),
+                    layout  = wibox.layout.fixed.horizontal,
+                },
+                left = sdpi(6), right = sdpi(10),
+                widget = wibox.container.margin,
+            },
+            id     = "background_role",
+            widget = wibox.container.background,
+        },
+    }
+
+    s.systray_separator = widgets.new_separator()
     s.systray_separator.visible = (s == screen.primary)
 
     local right = {
         layout = wibox.layout.fixed.horizontal,
-        wibox.widget.systray(),
+        { wibox.widget.systray(), top = sdpi(4), bottom = sdpi(4),
+          widget = wibox.container.margin },
         s.systray_separator,
         widgets.volume.widget,
         widgets.separator,
@@ -110,18 +155,25 @@ awful.screen.connect_for_each_screen(function(s)
     end
     table.insert(right, widgets.separator)
     table.insert(right, widgets.clock)
-    table.insert(right, s.mylayoutbox)
+    table.insert(right, { s.mylayoutbox, left = pad, top = sdpi(5), bottom = sdpi(5),
+                          widget = wibox.container.margin })
 
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    s.mywibox = awful.wibar({ position = "top", screen = s,
+                              height = sdpi(beautiful.bar_height or 26) })
     s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left
-            layout = wibox.layout.fixed.horizontal,
-            menu.launcher,
-            s.mytaglist,
-            s.mypromptbox,
+        {
+            { -- Left
+                { menu.launcher, top = sdpi(4), bottom = sdpi(4), right = pad,
+                  widget = wibox.container.margin },
+                s.mytaglist,
+                { s.mypromptbox, left = pad, widget = wibox.container.margin },
+                layout = wibox.layout.fixed.horizontal,
+            },
+            { s.mytasklist, left = pad, right = pad, widget = wibox.container.margin },
+            right,
+            layout = wibox.layout.align.horizontal,
         },
-        s.mytasklist, -- Middle
-        right,
+        left = pad, right = pad,
+        widget = wibox.container.margin,
     }
 end)

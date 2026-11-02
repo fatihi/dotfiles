@@ -4,6 +4,8 @@
 
 local gears = require("gears")
 local gfs   = require("gears.filesystem")
+-- Sizes below are given at 96 DPI; dpi() scales them (see modules/scaling.lua)
+local dpi   = require("beautiful.xresources").apply_dpi
 
 local theme = dofile(gfs.get_themes_dir() .. "openSUSE/theme.lua")
 
@@ -24,8 +26,22 @@ local c = {
 }
 theme.dracula = c
 
--- Font for the bar, menus, titlebars and notifications (same as the openSUSE default)
-theme.font = "sans 9"
+-- Font for the bar, menus, titlebars and notifications.
+-- Point size, so it scales with the screen's DPI like everything else.
+theme.font      = "sans 9"
+theme.font_bold = "sans bold 9"
+
+-- {{{ Sizes
+-- The bar is scaled per screen in bar.lua, so these two are plain 96-DPI values
+theme.bar_height      = 26
+theme.bar_padding     = 8   -- space at the bar's ends and around its widgets
+theme.titlebar_size   = dpi(22)
+theme.menu_height     = dpi(24)
+theme.menu_width      = dpi(200)
+theme.menu_border_width = dpi(1)
+theme.systray_icon_spacing = dpi(6)
+theme.tasklist_spacing = dpi(4)
+-- }}}
 
 theme.bg_normal   = c.bg
 theme.bg_focus    = c.selection
@@ -43,17 +59,29 @@ theme.icon_theme = "Adwaita"
 
 -- Gaps between tiled windows, slightly thicker border to show focus.
 -- A window alone on its tag gets no gaps (and no border, see signals.lua).
-theme.useless_gap       = 4
+theme.useless_gap       = dpi(4)
 theme.gap_single_client = false
-theme.border_width      = 2
+theme.border_width      = dpi(2)
 
 theme.border_normal = c.selection
 theme.border_focus  = c.purple
 theme.border_marked = c.pink
 
--- Current tag highlighted in purple
-theme.taglist_bg_focus = c.purple
-theme.taglist_fg_focus = c.bg
+-- Current tag highlighted in purple, urgent ones in red. No squares: the bar
+-- only lists tags with windows anyway (see bar.lua).
+theme.taglist_bg_focus   = c.purple
+theme.taglist_fg_focus   = c.bg
+theme.taglist_fg_occupied = c.fg
+theme.taglist_bg_urgent  = c.red
+theme.taglist_fg_urgent  = c.bg
+theme.taglist_squares_sel   = nil
+theme.taglist_squares_unsel = nil
+
+-- Window list in the bar: focused window highlighted, minimized ones dimmed
+theme.tasklist_bg_normal   = c.bg
+theme.tasklist_bg_focus    = c.selection
+theme.tasklist_fg_minimize = c.comment
+theme.tasklist_bg_minimize = c.bg
 
 theme.titlebar_bg_normal = c.bg
 theme.titlebar_bg_focus  = c.selection
@@ -61,6 +89,9 @@ theme.titlebar_bg_focus  = c.selection
 theme.menu_bg_normal    = c.bg
 theme.menu_bg_focus     = c.selection
 theme.menu_border_color = c.purple
+-- Text arrow for submenus instead of the openSUSE image (blurry when scaled)
+theme.menu_submenu_icon = nil
+theme.menu_submenu      = "›  "
 
 theme.tooltip_bg_color     = c.bg_dark
 theme.tooltip_fg_color     = c.fg
@@ -75,7 +106,10 @@ theme.hotkeys_modifiers_fg = c.comment
 theme.notification_bg           = c.bg
 theme.notification_fg           = c.fg
 theme.notification_border_color = c.purple
-theme.notification_max_width    = 450
+theme.notification_max_width    = dpi(420)
+theme.notification_shape = function(cr, w, h)
+  gears.shape.rounded_rect(cr, w, h, dpi(6))
+end
 
 -- {{{ Titlebar buttons: Dracula-coloured dots drawn in code (no image files)
 -- Focused window: filled dot = on, ring = off. Unfocused window: grey.

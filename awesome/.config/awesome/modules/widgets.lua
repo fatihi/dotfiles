@@ -8,12 +8,19 @@ local naughty   = require("naughty")
 local vicious   = require("vicious")
 local GLib      = require("lgi").GLib
 
+local dpi = beautiful.xresources.apply_dpi
+
 local colors = beautiful.dracula or {}
 local widgets = {}
 
 local function colored(text, color)
     if not color then return text end
     return string.format('<span foreground="%s">%s</span>', color, text)
+end
+
+-- "cpu 12%": dimmed name, then the value
+local function label(name, value)
+    return colored(name, colors.comment) .. " " .. value
 end
 
 -- {{{ OSD: one notification per kind that replaces itself, e.g. while holding a volume key
@@ -38,15 +45,29 @@ function widgets.osd(kind, title, pct)
 end
 -- }}}
 
--- Separator between widgets
-widgets.separator = wibox.widget.textbox(" | ")
+-- Separator between widgets: a short vertical line with space on both sides.
+-- new_separator() makes another one (a widget that is hidden on some screens
+-- needs its own, see bar.lua).
+function widgets.new_separator()
+    return wibox.widget {
+        widget       = wibox.widget.separator,
+        orientation  = "vertical",
+        forced_width = dpi(2 * beautiful.bar_padding + 1),
+        span_ratio   = 0.5,
+        thickness    = dpi(1),
+        color        = colors.selection,
+    }
+end
+widgets.separator = widgets.new_separator()
 
 -- {{{ Clock (German format via LC_TIME) with a month calendar on click
-widgets.clock = wibox.widget.textclock(" %a %d.%m. %H:%M ")
+widgets.clock = wibox.widget.textclock(
+    colored("%a %d.%m.", colors.comment) .. " <b>%H:%M</b>")
 widgets.calendar = awful.widget.calendar_popup.month({
     start_sunday  = false,
     long_weekdays = true,
-    style_month   = { border_color = colors.purple, border_width = 2, padding = 8 },
+    spacing       = dpi(4),
+    style_month   = { border_color = colors.purple, border_width = dpi(2), padding = dpi(10) },
     style_header  = { fg_color = colors.purple, border_width = 0 },
     style_weekday = { fg_color = colors.comment, border_width = 0 },
     style_normal  = { border_width = 0 },
@@ -57,7 +78,9 @@ widgets.calendar:attach(widgets.clock, "tr", { on_hover = false })
 
 -- CPU usage
 widgets.cpu = wibox.widget.textbox()
-vicious.register(widgets.cpu, vicious.widgets.cpu, "cpu: $1%", 2)
+vicious.register(widgets.cpu, vicious.widgets.cpu, function(_, args)
+    return label("cpu", args[1] .. "%")
+end, 2)
 
 -- {{{ Battery: red below 20%, yellow below 50%, green otherwise.
 -- "+" = charging, "-" = discharging. Warns once at 10% and once at 5% while discharging.
@@ -84,7 +107,8 @@ local function find_battery()
             break
         end
     end
-    dir:close()
+    -- No dir:close(): lgi closes it when garbage-collected, and closing it
+    -- here as well frees it twice and crashes awesome.
     return found
 end
 
@@ -114,9 +138,9 @@ if widgets.battery then vicious.register(widgets.battery, vicious.widgets.bat, f
     end
 
     local color = (pct < 20 and colors.red) or (pct < 50 and colors.yellow) or colors.green
-    local label = "bat: " .. (state == "+" and "+" or "") .. pct .. "%"
-    if discharging and time then label = label .. " " .. time .. "h" end
-    return colored(label, color)
+    local value = (state == "+" and "+" or "") .. pct .. "%"
+    if discharging and time then value = value .. " " .. time .. "h" end
+    return label("bat", colored(value, color))
 end, 10, battery_name) end
 -- }}}
 
@@ -130,15 +154,15 @@ function widgets.volume.update(show_osd)
         -- Output: "Volume: 0.40" or "Volume: 0.40 [MUTED]" (decimal may be "," in German locales)
         local int, frac = out:match("(%d+)[.,](%d+)")
         if not int then
-            volume_box:set_markup("vol: ?")
+            volume_box:set_markup(label("vol", "?"))
             return
         end
         local pct = math.floor(tonumber(int) * 100 + tonumber(frac) * 10 ^ (2 - #frac) + 0.5)
         local muted = out:find("MUTED") ~= nil
         if muted then
-            volume_box:set_markup(colored("vol: muted", colors.comment))
+            volume_box:set_markup(label("vol", colored("muted", colors.comment)))
         else
-            volume_box:set_markup("vol: " .. pct .. "%")
+            volume_box:set_markup(label("vol", pct .. "%"))
         end
         if show_osd then
             widgets.osd("volume", muted and "Volume (muted)" or "Volume", pct)

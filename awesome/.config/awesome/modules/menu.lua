@@ -9,6 +9,9 @@ local gfs         = require("gears.filesystem")
 local vars        = require("modules.vars")
 local power       = require("modules.power")
 
+-- Menu icons at the scaled size, so they stay sharp (see scaling.lua)
+local icon_size = beautiful.xresources.apply_dpi(16)
+
 local function lookup_icon(icon, size)
     local icon_theme = gtk.IconTheme.get_default()
     local icon_info = icon_theme:lookup_icon(icon, size, "USE_BUILTIN")
@@ -17,18 +20,18 @@ end
 
 -- Logout, reboot and shut down ask for confirmation (see power.lua)
 local system_menu = {
-    { "Lock Screen",     power.lock,     lookup_icon("system-lock-screen", 16) },
-    { "Suspend",         power.suspend,  lookup_icon("system-suspend", 16)     },
-    { "Logout",          power.logout,   lookup_icon("system-log-out", 16)     },
-    { "Reboot System",   power.reboot,   lookup_icon("system-restart", 16)     },
-    { "Shutdown System", power.shutdown, lookup_icon("system-shutdown", 16)    },
+    { "Lock Screen",     power.lock,     lookup_icon("system-lock-screen", icon_size) },
+    { "Suspend",         power.suspend,  lookup_icon("system-suspend", icon_size)     },
+    { "Logout",          power.logout,   lookup_icon("system-log-out", icon_size)     },
+    { "Reboot System",   power.reboot,   lookup_icon("system-restart", icon_size)     },
+    { "Shutdown System", power.shutdown, lookup_icon("system-shutdown", icon_size)    },
 }
 
 local awesome_menu = {
-    { "Restart Awesome", awesome.restart, lookup_icon("view-refresh", 16) },
+    { "Restart Awesome", awesome.restart, lookup_icon("view-refresh", icon_size) },
     { "Edit config", vars.editor_cmd .. " " .. gfs.get_configuration_dir(),
-      lookup_icon("package_settings", 16) },
-    { "Manual", vars.terminal .. " -e man awesome", lookup_icon("help-browser", 16) },
+      lookup_icon("package_settings", icon_size) },
+    { "Manual", vars.terminal .. " -e man awesome", lookup_icon("help-browser", icon_size) },
 }
 
 menubar.utils.terminal = vars.terminal
@@ -40,8 +43,8 @@ menu.main = freedesktop.menu.build({
         { "Awesome", awesome_menu, beautiful.awesome_icon },
     },
     after = {
-        { "System",   system_menu,   lookup_icon("preferences-system", 16) },
-        { "Terminal", vars.terminal, lookup_icon("utilities-terminal", 16) },
+        { "System",   system_menu,   lookup_icon("preferences-system", icon_size) },
+        { "Terminal", vars.terminal, lookup_icon("utilities-terminal", icon_size) },
     },
 })
 
