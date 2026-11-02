@@ -87,6 +87,20 @@ client.connect_signal("focus",   function(c) c.border_color = beautiful.border_f
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
+-- {{{ Monitor unplugged: move its windows to the same-numbered tag on a remaining
+-- screen (awesome would otherwise put all of them on tag 1).
+tag.connect_signal("request::screen", function(t)
+    local target_screen
+    for s in screen do
+        if s ~= t.screen then target_screen = s break end
+    end
+    if not target_screen then return end
+    local target = awful.tag.find_by_name(target_screen, t.name) or target_screen.tags[1]
+    if not target then return end
+    for _, c in ipairs(t:clients()) do c:move_to_tag(target) end
+end)
+-- }}}
+
 -- {{{ No border when it can't show anything: a single tiled window, the max layout,
 -- or a maximized window. Floating windows keep theirs.
 screen.connect_signal("arrange", function(s)

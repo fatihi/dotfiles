@@ -24,6 +24,10 @@ awful.spawn({ "xset", "dpms", tostring(vars.idle_off_seconds),
 run_once(string.format("light-locker --lock-after-screensaver=%d --lock-on-suspend --lock-on-lid",
     vars.idle_lock_delay), "light-locker")
 
+-- Monitors: apply the saved autorandr profile that matches the connected screens.
+-- (Plugging in/out later is handled by autorandr's own udev rule.)
+awful.spawn({ "autorandr", "--change" }, false)
+
 -- Compositor (vsync, shadows, fades). Config: ~/.config/picom/picom.conf
 run_once("picom")
 

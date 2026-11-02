@@ -167,6 +167,12 @@ local globalkeys = gears.table.join(
     awful.key({ }, "XF86MonBrightnessDown", function() widgets.brightness.change("5%-") end,
               { description = "brightness down", group = "media" }),
 
+    -- Monitors (autorandr profiles, see README)
+    awful.key({ }, "XF86Display", function() awful.spawn("autorandr --cycle") end,
+              { description = "next monitor profile (autorandr)", group = "screen" }),
+    awful.key({ modkey, "Shift" }, "o", function() awful.spawn("autorandr --change --force") end,
+              { description = "re-apply matching monitor profile (autorandr)", group = "screen" }),
+
     -- Screenshots
     awful.key({ }, "Print", function() awful.spawn("flameshot gui") end,
               { description = "screenshot: select area", group = "screenshot" }),

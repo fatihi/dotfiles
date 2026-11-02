@@ -15,7 +15,7 @@ done
 required_pkgs=(
   awesome awesome-vicious awesome-freedesktop   # window manager + bar widgets + menu
   wezterm rofi flameshot picom                  # terminal, launcher, screenshots, compositor
-  light-locker polkit-gnome NetworkManager-applet
+  light-locker polkit-gnome NetworkManager-applet autorandr arandr
   brightnessctl playerctl wireplumber pulseaudio-utils   # brightness, media, wpctl, pactl
   gtk3-metatheme-dracula gtk4-metatheme-dracula
 )

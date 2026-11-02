@@ -21,7 +21,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 
 ```bash
 sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
-                    wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet \
+                    wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
                     gtk3-metatheme-dracula gtk4-metatheme-dracula
 git clone <repo-url> ~/Projects/dotfiles
@@ -54,8 +54,8 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `keys.lua` | all key and mouse bindings |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
 | `rules.lua` | rules for new windows (dialogs and floating apps open centred) |
-| `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus, borders (hidden for a lone tiled window, the max layout and maximized windows) |
-| `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `picom`, polkit agent (`polkit-gnome`), `nm-applet` |
+| `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus, windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |
+| `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `autorandr --change`, `picom`, polkit agent (`polkit-gnome`), `nm-applet` |
 
 Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 
@@ -66,11 +66,18 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 | Play/pause, next, previous | `playerctl` (any MPRIS player: browsers, Spotify, mpv) |
 | Brightness keys | `brightnessctl` |
 | `Mod4+Shift+q` | power menu (replaces the instant quit) |
+| `XF86Display` (Fn key) / `Mod4+Shift+o` | autorandr: next monitor profile / re-apply the matching one |
 | `Mod4+Alt+h/l` / `Mod4+Alt+k/j` | resize window: narrower/wider, shorter/taller (tiled: changes the split and the window's share of its stack) |
 | `Mod4+Shift` + left-drag | resize window with the mouse (works with touchpad tap-and-drag) |
 | `Mod4+Ctrl+Escape` | lock screen |
 | `Print` | flameshot: select area |
 | `Shift+Print` | flameshot: whole screen, saved to `~/Pictures/Screenshots` and clipboard |
+
+Monitors: `autorandr` profiles live in `~/.config/autorandr/` and are not in
+this repo (they contain the monitors' EDID fingerprints). Create them once per machine:
+`autorandr --save laptop` with only the built-in screen, then plug in the monitor,
+arrange it with `arandr` and run `autorandr --save <name>`. autorandr's udev rule
+switches profiles automatically on hotplug; awesome applies the matching one at startup.
 
 Lock screen: `light-locker` hands over to the LightDM greeter. The screen blanks
 after 5 minutes idle and locks 10 seconds later; it also locks on suspend and
