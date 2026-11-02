@@ -18,33 +18,27 @@ awful.rules.rules = {
       },
     },
 
-    -- Windows that should always float
+    -- Windows that should always float, centred on the screen
     { rule_any = {
-        instance = {
-            "DTA",     -- Firefox addon DownThemAll.
-            "copyq",   -- Includes session name in class.
-        },
         class = {
             "Arandr",
-            "Gpick",
-            "Kruler",
-            "MessageWin",  -- kalarm.
-            "Sxiv",
-            "Wpa_gui",
             "pinentry",
-            "veromix",
-            "xtightvncviewer",
+            "pavucontrol", "org.pulseaudio.pavucontrol",
+            "Nm-connection-editor",
             "flameshot",
         },
         name = {
-            "Event Tester",  -- xev.
+            "Event Tester",  -- xev
         },
         role = {
-            "AlarmWindow",   -- Thunderbird's calendar.
-            "ConfigManager", -- Thunderbird's about:config.
-            "pop-up",        -- e.g. Google Chrome's (detached) Developer Tools.
+            "pop-up",        -- e.g. a browser's detached developer tools
         },
-      }, properties = { floating = true } },
+      }, properties = { floating = true,
+                        placement = awful.placement.centered + awful.placement.no_offscreen } },
+
+    -- Dialogs open in the middle of the screen
+    { rule = { type = "dialog" },
+      properties = { placement = awful.placement.centered + awful.placement.no_offscreen } },
 
     -- Create titlebars for normal windows and dialogs.
     -- signals.lua only shows them while a window is floating (or a dialog).

@@ -86,3 +86,20 @@ end)
 client.connect_signal("focus",   function(c) c.border_color = beautiful.border_focus  end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+-- {{{ No border when it can't show anything: a single tiled window, the max layout,
+-- or a maximized window. Floating windows keep theirs.
+screen.connect_signal("arrange", function(s)
+    local t = s.selected_tag
+    local layout = t and t.layout or awful.layout.suit.floating
+    local tiling = layout ~= awful.layout.suit.floating
+    local single = #s.tiled_clients == 1 or layout.name == "max"
+    for _, c in ipairs(s.clients) do
+        if c.maximized or (tiling and single and not c.floating) then
+            c.border_width = 0
+        else
+            c.border_width = beautiful.border_width
+        end
+    end
+end)
+-- }}}

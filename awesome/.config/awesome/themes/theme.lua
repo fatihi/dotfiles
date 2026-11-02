@@ -37,9 +37,11 @@ theme.fg_minimize = c.comment
 -- Icons for menus and the launcher
 theme.icon_theme = "Adwaita"
 
--- Gaps between tiled windows, slightly thicker border to show focus
-theme.useless_gap   = 4
-theme.border_width  = 2
+-- Gaps between tiled windows, slightly thicker border to show focus.
+-- A window alone on its tag gets no gaps (and no border, see signals.lua).
+theme.useless_gap       = 4
+theme.gap_single_client = false
+theme.border_width      = 2
 
 theme.border_normal = c.selection
 theme.border_focus  = c.purple
@@ -64,6 +66,12 @@ theme.hotkeys_bg           = c.bg
 theme.hotkeys_fg           = c.fg
 theme.hotkeys_border_color = c.purple
 theme.hotkeys_modifiers_fg = c.comment
+
+-- Notifications (spacing and the critical style are set in rc.lua)
+theme.notification_bg           = c.bg
+theme.notification_fg           = c.fg
+theme.notification_border_color = c.purple
+theme.notification_max_width    = 450
 
 -- {{{ Titlebar buttons: Dracula-coloured dots drawn in code (no image files)
 -- Focused window: filled dot = on, ring = off. Unfocused window: grey.

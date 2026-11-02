@@ -80,7 +80,8 @@ awful.screen.connect_for_each_screen(function(s)
         awful.button({ }, 5, function() awful.layout.inc(-1) end)
     ))
 
-    s.mytaglist  = awful.widget.taglist(s, awful.widget.taglist.filter.all, taglist_buttons)
+    -- Only tags with windows, plus the one being viewed (Mod4+1..9 still reach all nine)
+    s.mytaglist  = awful.widget.taglist(s, awful.widget.taglist.filter.noempty, taglist_buttons)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
 
     s.mywibox = awful.wibar({ position = "top", screen = s })

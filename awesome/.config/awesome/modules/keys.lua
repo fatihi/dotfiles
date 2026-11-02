@@ -5,6 +5,8 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local vars          = require("modules.vars")
 local menu          = require("modules.menu")
 local widgets       = require("modules.widgets")
+local power         = require("modules.power")
+local gfs           = require("gears.filesystem")
 
 local modkey   = vars.modkey
 local terminal = vars.terminal
@@ -43,7 +45,7 @@ local function ssh_prompt()
             while ncomp > #matches do ncomp = ncomp - #matches end
             return matches[ncomp], #matches[ncomp] + 1
         end,
-        history_path = awful.util.get_cache_dir() .. "/ssh_history",
+        history_path = gfs.get_cache_dir() .. "ssh_history",
     }
 end
 -- }}}
@@ -57,8 +59,8 @@ local globalkeys = gears.table.join(
               { description = "show main menu", group = "awesome" }),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               { description = "reload awesome", group = "awesome" }),
-    awful.key({ modkey, "Shift" }, "q", awesome.quit,
-              { description = "quit awesome", group = "awesome" }),
+    awful.key({ modkey, "Shift" }, "q", power.menu,
+              { description = "power menu (lock, suspend, logout, reboot, shut down)", group = "awesome" }),
     awful.key({ modkey, "Control" }, "Escape", function() awful.spawn(vars.lock_cmd) end,
               { description = "lock screen", group = "awesome" }),
     awful.key({ modkey }, "x", function()
@@ -66,7 +68,7 @@ local globalkeys = gears.table.join(
             prompt       = "Run Lua code: ",
             textbox      = awful.screen.focused().mypromptbox.widget,
             exe_callback = awful.util.eval,
-            history_path = awful.util.get_cache_dir() .. "/history_eval",
+            history_path = gfs.get_cache_dir() .. "history_eval",
         }
     end, { description = "lua execute prompt", group = "awesome" }),
 
@@ -144,13 +146,25 @@ local globalkeys = gears.table.join(
               { description = "volume down", group = "media" }),
     awful.key({ }, "XF86AudioMute", function() widgets.volume.run(widgets.volume.cmd.mute) end,
               { description = "toggle mute", group = "media" }),
-    awful.key({ }, "XF86AudioMicMute", function() awful.spawn(widgets.volume.cmd.mic_mute) end,
+    awful.key({ }, "XF86AudioMicMute", widgets.volume.toggle_mic,
               { description = "toggle microphone mute", group = "media" }),
 
-    -- Brightness (-n keeps the screen from going fully dark)
-    awful.key({ }, "XF86MonBrightnessUp", function() awful.spawn("brightnessctl -q set 5%+") end,
+    -- Media players (any app that supports MPRIS: browsers, Spotify, mpv, ...)
+    awful.key({ }, "XF86AudioPlay",  function() awful.spawn("playerctl play-pause") end,
+              { description = "play/pause", group = "media" }),
+    awful.key({ }, "XF86AudioPause", function() awful.spawn("playerctl pause") end,
+              { description = "pause", group = "media" }),
+    awful.key({ }, "XF86AudioStop",  function() awful.spawn("playerctl stop") end,
+              { description = "stop", group = "media" }),
+    awful.key({ }, "XF86AudioNext",  function() awful.spawn("playerctl next") end,
+              { description = "next track", group = "media" }),
+    awful.key({ }, "XF86AudioPrev",  function() awful.spawn("playerctl previous") end,
+              { description = "previous track", group = "media" }),
+
+    -- Brightness
+    awful.key({ }, "XF86MonBrightnessUp",   function() widgets.brightness.change("5%+") end,
               { description = "brightness up", group = "media" }),
-    awful.key({ }, "XF86MonBrightnessDown", function() awful.spawn("brightnessctl -q -n set 5%-") end,
+    awful.key({ }, "XF86MonBrightnessDown", function() widgets.brightness.change("5%-") end,
               { description = "brightness down", group = "media" }),
 
     -- Screenshots

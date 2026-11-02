@@ -13,6 +13,7 @@
 pcall(require, "luarocks.loader")
 
 local awful     = require("awful")
+local gfs       = require("gears.filesystem")
 local beautiful = require("beautiful")
 local naughty   = require("naughty")
 require("awful.autofocus")
@@ -39,14 +40,27 @@ end
 
 -- {{{ Theme (must be loaded before the modules)
 do
-    local user_theme = awful.util.getdir("config") .. "/themes/theme.lua"
+    local user_theme = gfs.get_configuration_dir() .. "themes/theme.lua"
     local f = io.open(user_theme)
     if f then
         f:close()
         beautiful.init(user_theme)
     else
-        beautiful.init(awful.util.get_themes_dir() .. "openSUSE/theme.lua")
+        beautiful.init(gfs.get_themes_dir() .. "openSUSE/theme.lua")
     end
+end
+-- }}}
+
+-- {{{ Notifications: spacing and the critical style (colours/border are in the theme)
+naughty.config.padding = 8   -- distance from the screen edge
+naughty.config.spacing = 4   -- distance between notifications
+naughty.config.defaults.margin       = 10
+naughty.config.defaults.border_width = 2
+naughty.config.defaults.icon_size    = 48
+if beautiful.dracula then
+    naughty.config.presets.critical.bg = beautiful.dracula.red
+    naughty.config.presets.critical.fg = beautiful.dracula.bg
+    naughty.config.presets.critical.border_color = beautiful.dracula.red
 end
 -- }}}
 
