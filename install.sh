@@ -10,6 +10,24 @@ for cmd in git stow; do
   command -v "$cmd" >/dev/null || { echo "Missing $cmd: sudo zypper install $cmd" >&2; exit 1; }
 done
 
+# Packages the configs use. Missing ones are only reported (the links still work,
+# but e.g. awesome falls back to its default config without vicious/freedesktop).
+required_pkgs=(
+  awesome awesome-vicious awesome-freedesktop   # window manager + bar widgets + menu
+  wezterm rofi flameshot picom                  # terminal, launcher, screenshots, compositor
+  light-locker polkit-gnome NetworkManager-applet
+  brightnessctl playerctl wireplumber pulseaudio-utils   # brightness, media, wpctl, pactl
+  gtk3-metatheme-dracula gtk4-metatheme-dracula
+)
+missing_pkgs=()
+for p in "${required_pkgs[@]}"; do
+  rpm -q "$p" >/dev/null 2>&1 || missing_pkgs+=("$p")
+done
+if (( ${#missing_pkgs[@]} )); then
+  echo "Missing packages, install with:" >&2
+  echo "  sudo zypper install ${missing_pkgs[*]}" >&2
+fi
+
 # 2. Collect packages (every top-level folder except system/, see step 7)
 packages=()
 for d in */; do

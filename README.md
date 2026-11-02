@@ -20,14 +20,16 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 ## Setup on a new machine
 
 ```bash
-sudo zypper install git stow awesome wezterm gtk3-metatheme-dracula gtk4-metatheme-dracula \
-                    brightnessctl flameshot rofi NetworkManager-applet light-locker \
-                    picom polkit-gnome playerctl
+sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
+                    wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet \
+                    brightnessctl playerctl wireplumber pulseaudio-utils \
+                    gtk3-metatheme-dracula gtk4-metatheme-dracula
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
 
-`install.sh` moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
+`install.sh` first lists any of these packages that are missing (the list is
+`required_pkgs` in the script; keep it in sync with the command above). It then moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
 and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
 keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
 files. Finally it copies everything under `system/` to the same path under `/`
