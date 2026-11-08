@@ -21,20 +21,36 @@ config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = true
 
--- " LEADER " on the right of the tab bar while Ctrl+a is waiting for the next key.
+-- Mode indicator on the right of the tab bar: " LEADER " while Ctrl+a is
+-- waiting for the next key, " COPY " / " SEARCH " in copy and search mode.
 -- Checked every 500 ms so it shows up well within the 2 s leader timeout.
 config.status_update_interval = 500
+local modes = {  -- Dracula colours
+  copy_mode   = { text = " COPY ",   color = "#f1fa8c" },  -- yellow
+  search_mode = { text = " SEARCH ", color = "#50fa7b" },  -- green
+}
 wezterm.on("update-status", function(window, _)
-  if window:leader_is_active() then
+  local mode = window:leader_is_active() and { text = " LEADER ", color = "#ff79c6" }  -- pink
+    or modes[window:active_key_table()]
+  if mode then
     window:set_right_status(wezterm.format({
-      { Background = { Color = "#ff79c6" } },  -- Dracula pink
+      { Background = { Color = mode.color } },
       { Foreground = { Color = "#282a36" } },
       { Attribute = { Intensity = "Bold" } },
-      { Text = " LEADER " },
+      { Text = mode.text },
     }))
   else
     window:set_right_status("")
   end
+end)
+
+-- Tab titles: " 1: title ", like the default, but without the "Copy mode: " /
+-- "Search: " prefix wezterm adds while a mode is active (the indicator shows it)
+wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
+  local title = tab.tab_title
+  if not title or title == "" then title = tab.active_pane.title end
+  title = title:gsub("^Copy mode: ", ""):gsub("^Search: ", "")
+  return wezterm.truncate_right(" " .. (tab.tab_index + 1) .. ": " .. title .. " ", max_width)
 end)
 
 -- Window
