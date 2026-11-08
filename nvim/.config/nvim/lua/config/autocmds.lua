@@ -21,14 +21,47 @@ autocmd("BufReadPost", {
   end,
 })
 
--- Keep splits equal when the terminal is resized
+-- Keep splits equal when the terminal is resized (in every tab, then back to this one)
 autocmd("VimResized", {
   group = group,
-  command = "tabdo wincmd =",
+  callback = function()
+    local tab = vim.fn.tabpagenr()
+    vim.cmd("tabdo wincmd =")
+    vim.cmd("tabnext " .. tab)
+  end,
 })
 
--- Reload files changed outside Neovim (e.g. by lazygit or git checkout)
+-- Reload files changed outside Neovim (e.g. by lazygit or git checkout).
+-- Not in the command-line window (q:), where :checktime isn't allowed.
 autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = group,
-  command = "checktime",
+  callback = function()
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd.checktime()
+    end
+  end,
+})
+
+-- Close help, quickfix, man pages and :checkhealth with q
+autocmd("FileType", {
+  group = group,
+  pattern = { "help", "qf", "man", "checkhealth" },
+  callback = function(ev)
+    vim.bo[ev.buf].buflisted = false
+    vim.keymap.set("n", "q", function()
+      if not pcall(vim.cmd.close) then -- the last window can't be closed
+        vim.cmd.bdelete()
+      end
+    end, { buffer = ev.buf, nowait = true, desc = "Close window" })
+  end,
+})
+
+-- Prose: wrap long lines and check spelling (z= suggestions, ]s / [s next/previous mistake)
+autocmd("FileType", {
+  group = group,
+  pattern = { "gitcommit", "markdown", "text" },
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.spell = true
+  end,
 })

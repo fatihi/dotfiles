@@ -7,6 +7,7 @@ pack.add({
   gh("neovim/nvim-lspconfig"), -- default settings for each language server
   gh("mason-org/mason-lspconfig.nvim"), -- enables the servers mason installed
   gh("folke/lazydev.nvim"), -- knows the Neovim Lua API when editing this config
+  gh("DrKJeff16/wezterm-types"), -- the same for the wezterm config (via lazydev)
   gh("rafamadriz/friendly-snippets"),
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") }, -- release tags ship a prebuilt binary
   gh("stevearc/conform.nvim"),
@@ -18,13 +19,15 @@ local map = vim.keymap.set
 
 -- Languages: add the server to `servers` and its formatter/linter below.
 -- Names: https://github.com/mason-org/mason-registry (or browse with :Mason)
-local servers = { "lua_ls" }
-local tools = { "stylua" } -- formatters and linters
+local servers = { "lua_ls", "bashls" }
+local tools = { "stylua", "shellcheck", "shfmt" } -- formatters and linters
 local formatters_by_ft = {
   lua = { "stylua" },
+  sh = { "shfmt" }, -- indent from .editorconfig, else the buffer's shiftwidth
+  bash = { "shfmt" },
 }
 local linters_by_ft = {
-  -- e.g. sh = { "shellcheck" },
+  -- e.g. python = { "ruff" }. (shellcheck needs no entry: bashls runs it)
 }
 
 -- Mason: install everything listed above (in the background, on first start)
@@ -49,7 +52,10 @@ vim.lsp.config("lua_ls", {
 })
 
 require("lazydev").setup({
-  library = { { path = "${3rd}/luv/library", words = { "vim%.uv" } } },
+  library = {
+    { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+    { path = "wezterm-types", mods = { "wezterm" } }, -- in files that require("wezterm")
+  },
 })
 
 -- Diagnostics: text at the end of the line, worst first, icons in the sign column

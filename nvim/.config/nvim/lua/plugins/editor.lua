@@ -19,18 +19,25 @@ local map = vim.keymap.set
 -- More languages: add them here, or :TSInstall <language>.
 -- stylua: ignore
 local parsers = {
-  "bash", "c", "diff", "git_config", "git_rebase", "gitcommit", "gitignore",
-  "html", "json", "lua", "luadoc", "markdown", "markdown_inline", "python", "query",
-  "regex", "toml", "vim", "vimdoc", "yaml",
+  "bash", "c", "css", "diff", "git_config", "git_rebase", "gitcommit", "gitignore",
+  "html", "ini", "json", "lua", "luadoc", "markdown", "markdown_inline", "python", "query",
+  "rasi", "regex", "toml", "vim", "vimdoc", "yaml",
 }
 if vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1 then
   require("nvim-treesitter").install(parsers) -- only installs missing ones, in the background
 else
   vim.notify("treesitter: install tree-sitter and gcc to compile parsers", vim.log.levels.WARN)
 end
+-- Files over 1 MB (logs, minified JSON, ...) get no treesitter, so they open fast
+local big_file = 1024 * 1024
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("treesitter", { clear = true }),
   callback = function(ev)
+    local stat = vim.uv.fs_stat(vim.api.nvim_buf_get_name(ev.buf))
+    if stat and stat.size > big_file then
+      vim.opt_local.foldmethod = "manual" -- the treesitter foldexpr would parse the whole file
+      return
+    end
     if pcall(vim.treesitter.start, ev.buf) then
       vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
     end
@@ -68,6 +75,21 @@ require("mini.surround").setup({
 
 -- Close brackets and quotes automatically
 require("mini.pairs").setup()
+
+-- Delete buffers but keep the window layout (plain :bdelete also closes the split)
+local bufremove = require("mini.bufremove")
+bufremove.setup()
+map("n", "<leader>bd", function()
+  bufremove.delete()
+end, { desc = "Delete buffer" })
+map("n", "<leader>bo", function()
+  local current = vim.api.nvim_get_current_buf()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if buf ~= current and vim.bo[buf].buflisted then
+      bufremove.delete(buf)
+    end
+  end
+end, { desc = "Delete other buffers" })
 
 -- Flash: press s and 1-2 characters, then the label shown at the target
 local flash = require("flash")

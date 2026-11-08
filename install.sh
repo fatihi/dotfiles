@@ -7,28 +7,31 @@ cd "$DOTFILES"
 
 # 1. Check dependencies
 for cmd in git stow; do
-  command -v "$cmd" >/dev/null || { echo "Missing $cmd: sudo zypper install $cmd" >&2; exit 1; }
+  command -v "$cmd" >/dev/null || {
+    echo "Missing $cmd: sudo zypper install $cmd" >&2
+    exit 1
+  }
 done
 
 # Packages the configs use. Missing ones are only reported (the links still work,
 # but e.g. awesome falls back to its default config without vicious/freedesktop).
 required_pkgs=(
-  awesome awesome-vicious awesome-freedesktop   # window manager + bar widgets + menu
-  wezterm rofi flameshot picom                  # terminal, launcher, screenshots, compositor
-  nerdfonts-symbolsonly-fonts                   # current Nerd Font icons for wezterm/Neovim
-  light-locker polkit-gnome NetworkManager-applet autorandr arandr
-  brightnessctl playerctl wireplumber pulseaudio-utils   # brightness, media, wpctl, pactl
-  gtk3-metatheme-dracula gtk4-metatheme-dracula
-  fzf zoxide                                    # fuzzy finder, smart cd (bash)
-  neovim ripgrep fd gcc tree-sitter xclip       # editor, its search tools, treesitter parser builds, clipboard
-  chafa                                         # image previews in fzf-lua
-  lazygit                                       # git UI (also inside neovim)
+  awesome awesome-vicious awesome-freedesktop                      # window manager + bar widgets + menu
+  wezterm rofi flameshot picom                                     # terminal, launcher, screenshots, compositor
+  nerdfonts-symbolsonly-fonts                                      # current Nerd Font icons for wezterm/Neovim
+  light-locker polkit-gnome NetworkManager-applet autorandr arandr # screen lock, polkit agent, network tray, monitor setup
+  brightnessctl playerctl wireplumber pulseaudio-utils             # brightness, media, wpctl, pactl
+  gtk3-metatheme-dracula gtk4-metatheme-dracula                    # GTK themes
+  fzf zoxide                                                       # fuzzy finder, smart cd (bash)
+  neovim ripgrep fd gcc tree-sitter xclip                          # editor, its search tools, treesitter parser builds, clipboard
+  chafa                                                            # image previews in fzf-lua
+  lazygit                                                          # git UI (also inside neovim)
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do
   rpm -q "$p" >/dev/null 2>&1 || missing_pkgs+=("$p")
 done
-if (( ${#missing_pkgs[@]} )); then
+if ((${#missing_pkgs[@]})); then
   echo "Missing packages, install with:" >&2
   echo "  sudo zypper install ${missing_pkgs[*]}" >&2
 fi

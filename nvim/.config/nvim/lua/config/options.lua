@@ -19,6 +19,8 @@ o.signcolumn = "yes" -- always shown, so text doesn't jump when git/diagnostic s
 o.scrolloff = 8
 o.sidescrolloff = 8
 o.wrap = false
+o.linebreak = true -- when wrapping (<leader>uw), break at word boundaries
+o.breakindent = true -- and indent the continuation lines
 
 -- Undo history survives closing the file
 o.undofile = true
@@ -47,6 +49,9 @@ o.fillchars = { eob = " " } -- no ~ after the end of the buffer
 -- Splits open to the right / below
 o.splitright = true
 o.splitbelow = true
+o.splitkeep = "screen" -- text doesn't scroll when a split opens or closes
+
+o.virtualedit = "block" -- Ctrl+v selections can go past the end of short lines
 
 -- Folding by treesitter, all folds open when a file is opened
 o.foldmethod = "expr"
@@ -57,6 +62,7 @@ o.foldlevel = 99
 o.winborder = "rounded" -- borders around floating windows (hover, diagnostics, ...)
 o.laststatus = 3 -- one statusline for all windows
 o.showmode = false -- lualine shows the mode
+o.sessionoptions = { "buffers", "curdir", "folds", "help", "tabpages", "winsize" } -- no empty or terminal windows
 o.confirm = true -- ask to save instead of failing on :q with changes
 o.updatetime = 250 -- faster CursorHold (gitsigns, LSP highlights)
 o.timeoutlen = 400 -- which-key pops up after this long

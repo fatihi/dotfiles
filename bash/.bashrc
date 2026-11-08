@@ -10,6 +10,7 @@
 # here, since multilingual X sessions would not work properly if LANG is over-
 # ridden in every subshell.
 
+# shellcheck source=/dev/null  # optional file, not in the repo
 test -s ~/.alias && . ~/.alias || true
 
 # History: keep a lot, with timestamps, and write each command right away so
@@ -38,4 +39,5 @@ if [ "$TERM_PROGRAM" = "WezTerm" ] && [ -r /usr/etc/profile.d/wezterm.sh ]; then
 fi
 
 # Machine-specific settings and secrets (not tracked in dotfiles)
+# shellcheck source=/dev/null  # optional file, not in the repo
 test -s ~/.bashrc.local && . ~/.bashrc.local || true

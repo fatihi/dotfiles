@@ -106,16 +106,18 @@ mason (`:Mason`) on the first start, also in the background.
 | File | Contents |
 |------|----------|
 | `init.lua` | loads the modules below in order |
-| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, sessions without empty/terminal windows |
 | `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree |
-| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside |
+| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
 | `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), sessions (persistence), start screen (mini.starter) |
-| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), text objects (mini.ai), surround, autopairs, flash, smart-splits, todo-comments, render-markdown |
-| `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; skipped for files over 1 MB), text objects (mini.ai), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, render-markdown |
+| `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
+
+Outside `nvim/`: `awesome/.config/awesome/.luarc.json` tells lua_ls about awesome's globals and library, and the repo's `.editorconfig` sets 2-space indent for the shell scripts (Neovim and shfmt both read it).
 
 Press `Space` and wait to see all leader keys, or `Space f k` to search every key.
 The main ones:
@@ -136,6 +138,7 @@ The main ones:
 | `Space g g` | lazygit |
 | `Space q s` / `Space q l` | restore this folder's session / the last session |
 | `Space u u` / `Space u m` | undo tree / toggle markdown rendering |
+| `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
 
 ## Day to day
 

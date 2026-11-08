@@ -1,0 +1,7 @@
+# Indentation for files in this repo. Neovim applies it while editing, and
+# shfmt (format on save for shell scripts) reads it too.
+root = true
+
+[{*.sh,.bashrc,.profile}]
+indent_style = space
+indent_size = 2

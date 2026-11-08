@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.4",
+  "diagnostics.globals": [
+    "awesome", "client", "screen", "root", "tag", "mouse", "mousegrabber",
+    "keygrabber", "selection", "dbus", "drawin", "drawable", "button", "key"
+  ],
+  "workspace.library": ["/usr/share/awesome/lib"],
+  "workspace.checkThirdParty": false
+}

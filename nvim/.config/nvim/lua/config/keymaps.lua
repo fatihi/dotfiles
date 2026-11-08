@@ -14,9 +14,7 @@ map("x", ">", ">gv")
 map("x", "J", ":move '>+1<cr>gv=gv", { desc = "Move lines down", silent = true })
 map("x", "K", ":move '<-2<cr>gv=gv", { desc = "Move lines up", silent = true })
 
--- Buffers ([b / ]b switch buffers, built in)
-map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete buffer" })
-map("n", "<leader>bo", "<cmd>%bdelete|edit#|bdelete#<cr>", { desc = "Delete other buffers" })
+-- Buffers: [b / ]b switch (built in), <leader>bd / <leader>bo in lua/plugins/editor.lua
 
 -- Diagnostics ([d / ]d jump, built in)
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
@@ -27,7 +25,7 @@ map("n", "<leader>ud", function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle diagnostics" })
 map("n", "<leader>uv", function()
-  local on = vim.diagnostic.config().virtual_lines
+  local on = not not vim.diagnostic.config().virtual_lines -- nil at first, and nil wouldn't turn virtual_text off
   vim.diagnostic.config({ virtual_lines = not on, virtual_text = on })
 end, { desc = "Toggle diagnostics below the line" })
 map("n", "<leader>uh", function()

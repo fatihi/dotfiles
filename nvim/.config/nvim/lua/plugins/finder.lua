@@ -59,6 +59,14 @@ require("neo-tree").setup({
     filtered_items = { hide_dotfiles = false },
   },
 })
+-- Close it before a session is saved, otherwise restoring brings back a broken, empty tree
+vim.api.nvim_create_autocmd("User", {
+  group = vim.api.nvim_create_augroup("neo_tree_session", { clear = true }),
+  pattern = "PersistenceSavePre",
+  callback = function()
+    require("neo-tree.command").execute({ action = "close" })
+  end,
+})
 -- Reveals the current file (asks to change the working folder if the file is
 -- outside it). In buffers that aren't files (start screen, oil, help, ...) it
 -- just opens the working folder, instead of trying to reveal e.g. "ministarter://1"
