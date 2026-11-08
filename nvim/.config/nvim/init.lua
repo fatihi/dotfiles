@@ -5,6 +5,7 @@
 require("config.options") -- also sets the leader key, so it must come first
 require("config.keymaps")
 require("config.autocmds")
+require("config.terminal")
 
 -- Plugins, grouped by topic (ui first: it sets up the icons the others use)
 require("plugins.ui")

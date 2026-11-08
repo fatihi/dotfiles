@@ -27,6 +27,10 @@ require("lualine").setup({
     component_separators = "",
     section_separators = { left = "", right = "" },
   },
+  sections = {
+    -- lsp_status: attached language servers, with a spinner while they're busy (e.g. indexing)
+    lualine_x = { "lsp_status", "encoding", "fileformat", "filetype" },
+  },
   extensions = { "oil", "neo-tree", "trouble", "fzf", "quickfix" },
 })
 
@@ -62,9 +66,24 @@ hipatterns.setup({
   highlighters = { hex_color = hipatterns.gen_highlighter.hex_color() },
 })
 
--- Sessions: saved automatically per folder when quitting
+-- Sessions: saved automatically per folder when quitting. Not when files were
+-- given ("nvim .bashrc" would replace this folder's session with that one file),
+-- unless a session is restored by hand afterwards. "nvim ." still saves.
 local persistence = require("persistence")
 persistence.setup()
+for _, arg in ipairs(vim.fn.argv()) do
+  if vim.fn.isdirectory(arg) == 0 then
+    persistence.stop()
+    break
+  end
+end
+vim.api.nvim_create_autocmd("User", {
+  group = vim.api.nvim_create_augroup("persistence_restart", { clear = true }),
+  pattern = "PersistenceLoadPost",
+  callback = function()
+    persistence.start()
+  end,
+})
 vim.keymap.set("n", "<leader>qs", persistence.load, { desc = "Restore session (this folder)" })
 vim.keymap.set("n", "<leader>ql", function()
   persistence.load({ last = true })

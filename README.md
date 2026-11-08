@@ -26,7 +26,7 @@ sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
                     gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
-                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts chafa
+                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts chafa npm
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -101,19 +101,21 @@ Needs Neovim 0.12+. Plugins are managed by the built-in `vim.pack`: they are
 cloned on the first start, and their versions are pinned in
 `nvim-pack-lock.json` (committed). Update with `:lua vim.pack.update()`, then
 commit the changed lockfile. Language servers and formatters are installed by
-mason (`:Mason`) on the first start, also in the background.
+mason (`:Mason`) on the first start, also in the background (the JSON/YAML servers
+need `npm`, the Python ones `python3`).
 
 | File | Contents |
 |------|----------|
 | `init.lua` | loads the modules below in order |
-| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, sessions without empty/terminal windows |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows |
 | `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree |
 | `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown |
+| `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
-| `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), sessions (persistence), start screen (mini.starter) |
-| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; skipped for files over 1 MB), text objects (mini.ai), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, render-markdown |
+| `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
+| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), big-file guard (over 1 MB: no treesitter, indent guides, colour previews or language servers), text objects (mini.ai), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, render-markdown |
 | `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
@@ -127,6 +129,7 @@ The main ones:
 | `Space Space` / `Space f g` / `Space f b` / `Space f r` | find files / grep / buffers / recent files |
 | `-` / `Space e` | oil (parent folder as a buffer, `:w` applies edits) / neo-tree sidebar |
 | `s` / `S` | flash jump / select a treesitter node |
+| `]f` / `[f` | next / previous function |
 | `gsa` / `gsd` / `gsr` | add / delete / replace surrounding (e.g. `gsaiw"`) |
 | `af` `if` / `ac` `ic` / `ao` `io` | function / class / if-or-loop text objects |
 | `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
@@ -135,7 +138,7 @@ The main ones:
 | `Space c f` / `Space u f` | format / toggle format on save |
 | `Space x x` / `Space x t` | diagnostics / TODOs in trouble |
 | `]h` `[h` / `Space g s` / `Space g p` / `Space g b` | next/prev git hunk / stage / preview / blame |
-| `Space g g` | lazygit |
+| `Space g g` / `Space t` | lazygit / terminal split (`Esc Esc` = normal mode) |
 | `Space q s` / `Space q l` | restore this folder's session / the last session |
 | `Space u u` / `Space u m` | undo tree / toggle markdown rendering |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |

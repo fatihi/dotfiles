@@ -21,6 +21,7 @@ o.sidescrolloff = 8
 o.wrap = false
 o.linebreak = true -- when wrapping (<leader>uw), break at word boundaries
 o.breakindent = true -- and indent the continuation lines
+o.smoothscroll = true -- scroll wrapped lines screen line by screen line, not a whole line at once
 
 -- Undo history survives closing the file
 o.undofile = true

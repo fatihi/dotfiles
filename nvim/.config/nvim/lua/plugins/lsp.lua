@@ -8,6 +8,7 @@ pack.add({
   gh("mason-org/mason-lspconfig.nvim"), -- enables the servers mason installed
   gh("folke/lazydev.nvim"), -- knows the Neovim Lua API when editing this config
   gh("DrKJeff16/wezterm-types"), -- the same for the wezterm config (via lazydev)
+  gh("b0o/SchemaStore.nvim"), -- JSON/YAML schemas for jsonls and yamlls
   gh("rafamadriz/friendly-snippets"),
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") }, -- release tags ship a prebuilt binary
   gh("stevearc/conform.nvim"),
@@ -19,15 +20,26 @@ local map = vim.keymap.set
 
 -- Languages: add the server to `servers` and its formatter/linter below.
 -- Names: https://github.com/mason-org/mason-registry (or browse with :Mason)
-local servers = { "lua_ls", "bashls" }
+-- jsonls and yamlls are installed with npm (needs Node.js), the others are binaries or Python.
+local servers = {
+  "lua_ls",
+  "bashls",
+  "jsonls", -- JSON, checked against its schema (SchemaStore), e.g. .luarc.json
+  "yamlls", -- YAML, the same, e.g. lazygit's config.yml
+  "taplo", -- TOML
+  "basedpyright", -- Python: types, completion, go to definition
+  "ruff", -- Python: lint (as a server) and format (via conform below)
+}
 local tools = { "stylua", "shellcheck", "shfmt" } -- formatters and linters
+-- Not listed: the language server formats (JSON, YAML, TOML)
 local formatters_by_ft = {
   lua = { "stylua" },
   sh = { "shfmt" }, -- indent from .editorconfig, else the buffer's shiftwidth
   bash = { "shfmt" },
+  python = { "ruff_organize_imports", "ruff_format" },
 }
 local linters_by_ft = {
-  -- e.g. python = { "ruff" }. (shellcheck needs no entry: bashls runs it)
+  -- e.g. markdown = { "markdownlint" }. (shellcheck and ruff need no entry: bashls / the ruff server run them)
 }
 
 -- Mason: install everything listed above (in the background, on first start)
@@ -49,6 +61,18 @@ end)
 -- Server settings (merged with nvim-lspconfig's defaults)
 vim.lsp.config("lua_ls", {
   settings = { Lua = { format = { enable = false } } }, -- stylua formats Lua
+})
+
+vim.lsp.config("jsonls", {
+  settings = { json = { schemas = require("schemastore").json.schemas(), validate = { enable = true } } },
+})
+vim.lsp.config("yamlls", {
+  settings = {
+    yaml = {
+      schemaStore = { enable = false, url = "" }, -- SchemaStore.nvim provides the catalog instead
+      schemas = require("schemastore").yaml.schemas(),
+    },
+  },
 })
 
 require("lazydev").setup({
@@ -79,6 +103,16 @@ vim.diagnostic.config({
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("lsp_keys", { clear = true }),
   callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if vim.b[ev.buf].big_file then -- files over 1 MB (lua/plugins/editor.lua)
+      vim.schedule(function()
+        vim.lsp.buf_detach_client(ev.buf, ev.data.client_id)
+      end)
+      return
+    end
+    if client and client.name == "ruff" then
+      client.server_capabilities.hoverProvider = false -- K shows basedpyright's hover instead
+    end
     local fzf = require("fzf-lua")
     local function bmap(lhs, rhs, desc)
       map("n", lhs, rhs, { buffer = ev.buf, desc = desc })

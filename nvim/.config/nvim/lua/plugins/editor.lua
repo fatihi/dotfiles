@@ -28,14 +28,18 @@ if vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1 then
 else
   vim.notify("treesitter: install tree-sitter and gcc to compile parsers", vim.log.levels.WARN)
 end
--- Files over 1 MB (logs, minified JSON, ...) get no treesitter, so they open fast
+-- Files over 1 MB (logs, minified JSON, ...) get no treesitter, indent guides,
+-- colour previews or language servers, so they open and scroll fast
 local big_file = 1024 * 1024
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("treesitter", { clear = true }),
   callback = function(ev)
     local stat = vim.uv.fs_stat(vim.api.nvim_buf_get_name(ev.buf))
     if stat and stat.size > big_file then
+      vim.b[ev.buf].big_file = true -- language servers check this (lua/plugins/lsp.lua)
       vim.opt_local.foldmethod = "manual" -- the treesitter foldexpr would parse the whole file
+      vim.b[ev.buf].minihipatterns_disable = true
+      require("ibl").setup_buffer(ev.buf, { enabled = false })
       return
     end
     if pcall(vim.treesitter.start, ev.buf) then
@@ -58,6 +62,16 @@ ai.setup({
     }),
   },
 })
+
+-- ]f / [f: next / previous function (start). Also after an operator, e.g. d]f.
+-- The jumps go to the jumplist, so Ctrl+o goes back.
+local move = require("nvim-treesitter-textobjects.move")
+map({ "n", "x", "o" }, "]f", function()
+  move.goto_next_start("@function.outer", "textobjects")
+end, { desc = "Next function" })
+map({ "n", "x", "o" }, "[f", function()
+  move.goto_previous_start("@function.outer", "textobjects")
+end, { desc = "Previous function" })
 
 -- Surround on gs (s is flash): gsa = add, gsd = delete, gsr = replace
 --   e.g. gsaiw" = put "" around the word, gsd" = remove them, gsr"' = " -> '

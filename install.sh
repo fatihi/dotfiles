@@ -13,7 +13,8 @@ for cmd in git stow; do
   }
 done
 
-# Packages the configs use. Missing ones are only reported (the links still work,
+# Packages the configs use (checked by what they provide, so "npm" is met by
+# e.g. npm26). Missing ones are only reported (the links still work,
 # but e.g. awesome falls back to its default config without vicious/freedesktop).
 required_pkgs=(
   awesome awesome-vicious awesome-freedesktop                      # window manager + bar widgets + menu
@@ -26,10 +27,11 @@ required_pkgs=(
   neovim ripgrep fd gcc tree-sitter xclip                          # editor, its search tools, treesitter parser builds, clipboard
   chafa                                                            # image previews in fzf-lua
   lazygit                                                          # git UI (also inside neovim)
+  npm                                                              # Node.js, for the JSON/YAML language servers mason installs
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do
-  rpm -q "$p" >/dev/null 2>&1 || missing_pkgs+=("$p")
+  rpm -q --whatprovides "$p" >/dev/null 2>&1 || missing_pkgs+=("$p")
 done
 if ((${#missing_pkgs[@]})); then
   echo "Missing packages, install with:" >&2
