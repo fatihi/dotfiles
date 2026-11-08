@@ -18,14 +18,16 @@ local map = vim.keymap.set
 
 -- Treesitter: highlighting, indentation and folds from a real parser.
 -- Parsers are compiled locally (needs the tree-sitter CLI and a C compiler).
--- More languages: add them here, or :TSInstall <language>.
+-- These are installed on start; any other language gets its parser the first
+-- time a file of it is opened (see the FileType autocmd below).
 -- stylua: ignore
 local parsers = {
   "bash", "c", "css", "diff", "git_config", "git_rebase", "gitcommit", "gitignore",
   "html", "ini", "json", "lua", "luadoc", "markdown", "markdown_inline", "python", "query",
   "rasi", "regex", "toml", "vim", "vimdoc", "yaml",
 }
-if vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1 then
+local can_compile = vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1
+if can_compile then
   require("nvim-treesitter").install(parsers) -- only installs missing ones, in the background
 else
   vim.notify("treesitter: install tree-sitter and gcc to compile parsers", vim.log.levels.WARN)
@@ -69,14 +71,53 @@ vim.api.nvim_create_autocmd("FileType", {
     end)
   end,
 })
+-- Start treesitter in every buffer whose language has a parser. A language
+-- nvim-treesitter knows but that has no parser yet gets one compiled in the
+-- background; the open files of that language switch over when it's done.
+local function ts_start(buf)
+  if pcall(vim.treesitter.start, buf) then
+    vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    return true
+  end
+end
+local installable -- set of languages nvim-treesitter can install, looked up on first use
+local tried = {} -- each language at most once per session (no retry loop if compiling fails)
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("treesitter", { clear = true }),
   callback = function(ev)
-    if pcall(vim.treesitter.start, ev.buf) then
-      vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    if ts_start(ev.buf) or not can_compile then
+      return
     end
+    local lang = vim.treesitter.language.get_lang(ev.match)
+    if not lang or tried[lang] then
+      return
+    end
+    tried[lang] = true
+    local ts = require("nvim-treesitter")
+    if not installable then
+      installable = {}
+      for _, l in ipairs(ts.get_available()) do
+        installable[l] = true
+      end
+    end
+    if not installable[lang] then -- e.g. "oil", "fzf", "bigfile"
+      return
+    end
+    ts.install(lang):await(function(err)
+      if err then
+        return
+      end
+      vim.schedule(function()
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype == ev.match then
+            ts_start(buf)
+          end
+        end
+      end)
+    end)
   end,
 })
+
 -- Sticky context: the function/class/if the cursor is in stays at the top of
 -- the window when its first line has scrolled away (up to 3 lines)
 require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
