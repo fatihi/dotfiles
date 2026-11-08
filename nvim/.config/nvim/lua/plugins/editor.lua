@@ -123,9 +123,25 @@ vim.api.nvim_create_autocmd("FileType", {
 require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
 map("n", "<leader>ut", "<cmd>TSContext toggle<cr>", { desc = "Toggle sticky context" })
 
--- Text objects: va) vi" etc. get smarter, plus treesitter-based ones:
---   af/if = function, ac/ic = class, ao/io = if/loop, aa/ia = argument (built in)
+-- Text objects: va) vi" etc. get smarter (they also find the next pair when the
+-- cursor isn't inside one), plus:
+--   af/if = function, ac/ic = class, ao/io = if/loop (treesitter)
+--   aa/ia = argument, au/iu = function call, at/it = HTML/XML tag
+--   ag/ig = whole buffer (ig without leading/trailing blank lines), e.g. yag
+--   id = number, ie = part of a CamelCase/snake_case word
 local ai = require("mini.ai")
+
+local function whole_buffer(ai_type)
+  local first, last = 1, vim.fn.line("$")
+  if ai_type == "i" then
+    first, last = vim.fn.nextnonblank(first), vim.fn.prevnonblank(last)
+    if first == 0 then -- only blank lines
+      return { from = { line = 1, col = 1 } }
+    end
+  end
+  return { from = { line = first, col = 1 }, to = { line = last, col = math.max(#vim.fn.getline(last), 1) } }
+end
+
 ai.setup({
   n_lines = 500,
   custom_textobjects = {
@@ -135,6 +151,16 @@ ai.setup({
       a = { "@conditional.outer", "@loop.outer" },
       i = { "@conditional.inner", "@loop.inner" },
     }),
+    u = ai.gen_spec.function_call(), -- foo(...), also obj.method(...)
+    -- tags, also with - or : in the name (<my-tag>, <svg:rect>), unlike mini.ai's own t
+    t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
+    d = { "%f[%d]%d+" },
+    -- a word part: Variable in myVariableName, variable in my_variable_name
+    e = {
+      { "%u[%l%d]+%f[^%l%d]", "%f[%S][%l%d]+%f[^%l%d]", "%f[%P][%l%d]+%f[^%l%d]", "^[%l%d]+%f[^%l%d]" },
+      "^().*()$",
+    },
+    g = whole_buffer,
   },
 })
 
