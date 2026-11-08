@@ -56,6 +56,16 @@ autocmd("FileType", {
   end,
 })
 
+-- o / O on a comment line start a plain line, not another comment (Enter in
+-- insert mode still continues the comment; gco / gcO add a comment line).
+-- An autocmd because filetype plugins set formatoptions per buffer.
+autocmd("FileType", {
+  group = group,
+  callback = function()
+    vim.opt_local.formatoptions:remove("o")
+  end,
+})
+
 -- Prose: wrap long lines and check spelling (z= suggestions, ]s / [s next/previous mistake)
 autocmd("FileType", {
   group = group,

@@ -57,6 +57,10 @@ o.splitkeep = "screen" -- text doesn't scroll when a split opens or closes
 -- (or Neovim offers to download it the first time it's needed).
 o.spelllang = { "en", "de" }
 
+-- Ctrl+o / Ctrl+i return to the same scroll position, not just the same line
+-- ("clean" is the default: forget jumps into deleted buffers)
+o.jumpoptions = { "view", "clean" }
+
 o.virtualedit = "block" -- Ctrl+v selections can go past the end of short lines
 
 -- Folding by treesitter, all folds open when a file is opened

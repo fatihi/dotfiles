@@ -107,9 +107,9 @@ need `npm`, the Python ones `python3`).
 | File | Contents |
 |------|----------|
 | `init.lua` | loads the modules below in order |
-| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows, spell checking in English and German (`de` dictionary downloaded by `install.sh`) |
-| `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree |
-| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows, Ctrl+o/Ctrl+i keep the scroll position (`jumpoptions=view`), spell checking in English and German (`de` dictionary downloaded by `install.sh`) |
+| `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree, `j`/`k` by screen line in wrapped text, `n`/`N` always down/up, undo steps at `,` `.` `;` in insert mode, `gco`/`gcO`, splits, restart |
+| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown, `o`/`O` on a comment line don't continue the comment |
 | `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
 | `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
@@ -142,7 +142,10 @@ The main ones:
 | `Space x x` / `Space x t` | diagnostics / TODOs in trouble |
 | `]h` `[h` / `Space g s` / `Space g p` / `Space g b` | next/prev git hunk / stage / preview / blame |
 | `Space g g` / `Space t` | lazygit / terminal split (`Esc Esc` = normal mode) |
-| `Space q s` / `Space q l` | restore this folder's session / the last session |
+| `Space q s` / `Space q l` / `Space q r` | restore this folder's session / the last session / restart Neovim (same windows and files) |
+| `gco` / `gcO` | new comment line below / above (`o` on a comment line starts a plain line) |
+| `Space -` / `Space \|` | split below / right |
+| `n` / `N` | next match down / up, also after `?` |
 | `Space u u` / `Space u m` / `Space u t` | undo tree / toggle markdown rendering / toggle sticky context |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
 
