@@ -107,7 +107,7 @@ need `npm`, the Python ones `python3`).
 | File | Contents |
 |------|----------|
 | `init.lua` | loads the modules below in order |
-| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows, spell checking in English and German (`de` dictionary downloaded by `install.sh`) |
 | `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree |
 | `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown |
 | `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |

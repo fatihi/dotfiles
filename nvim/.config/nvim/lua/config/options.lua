@@ -52,6 +52,11 @@ o.splitright = true
 o.splitbelow = true
 o.splitkeep = "screen" -- text doesn't scroll when a split opens or closes
 
+-- Spell checking (on in commits, markdown and text files): a word is fine if
+-- it's English or German. The German dictionary is downloaded by install.sh
+-- (or Neovim offers to download it the first time it's needed).
+o.spelllang = { "en", "de" }
+
 o.virtualedit = "block" -- Ctrl+v selections can go past the end of short lines
 
 -- Folding by treesitter, all folds open when a file is opened

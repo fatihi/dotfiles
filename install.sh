@@ -65,6 +65,17 @@ stow --restow --no-folding --target="$HOME" "${packages[@]}"
 # 5. Create local, untracked override files
 [[ -e "$HOME/.bashrc.local" ]] || touch "$HOME/.bashrc.local"
 
+# 5b. German spell dictionary for Neovim (spelllang = en,de), from the
+#     server Neovim itself downloads missing ones from
+spell_dir="$HOME/.local/share/nvim/site/spell"
+if [[ ! -e "$spell_dir/de.utf-8.spl" ]] && command -v curl >/dev/null; then
+  mkdir -p "$spell_dir"
+  for f in de.utf-8.spl de.utf-8.sug; do
+    curl -fsSL -o "$spell_dir/$f" "https://ftp.nluug.nl/pub/vim/runtime/spell/$f" ||
+      echo "Could not download the Neovim spell file $f" >&2
+  done
+fi
+
 # 6. Dark mode for apps that read dconf instead of files (libadwaita, Firefox)
 if command -v gsettings >/dev/null; then
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
