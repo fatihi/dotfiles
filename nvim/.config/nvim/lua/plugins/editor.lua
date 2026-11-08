@@ -28,26 +28,53 @@ if vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1 then
 else
   vim.notify("treesitter: install tree-sitter and gcc to compile parsers", vim.log.levels.WARN)
 end
--- Files over 1 MB (logs, minified JSON, ...) get no treesitter, indent guides,
--- colour previews or language servers, so they open and scroll fast
-local big_file = 1024 * 1024
+-- Big files: over 1 MB, or lines over 1000 characters on average (minified
+-- JS/JSON, ...), get the filetype "bigfile" instead of their real one. Then no
+-- treesitter, language server, linter, formatter or other filetype plugin starts,
+-- and they open and scroll fast. They keep the old regex highlighting of their language.
+local big_file = { size = 1024 * 1024, line_length = 1000 }
+vim.filetype.add({
+  pattern = {
+    [".*"] = {
+      function(path, buf)
+        if not buf or vim.bo[buf].filetype == "bigfile" or path ~= vim.fs.normalize(vim.api.nvim_buf_get_name(buf)) then
+          return
+        end
+        local size = vim.fn.getfsize(path)
+        if size <= 0 then
+          return
+        end
+        local lines = vim.api.nvim_buf_line_count(buf)
+        if size > big_file.size or (size - lines) / lines > big_file.line_length then
+          return "bigfile"
+        end
+      end,
+      { priority = math.huge }, -- before the extension (.json, .js, ...) decides
+    },
+  },
+})
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("big_file", { clear = true }),
+  pattern = "bigfile",
+  callback = function(ev)
+    vim.b[ev.buf].minihipatterns_disable = true -- colour previews
+    vim.opt_local.foldmethod = "manual"
+    local ft = vim.filetype.match({ buf = ev.buf }) -- the real one (the check above skips "bigfile" buffers)
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(ev.buf) then
+        vim.bo[ev.buf].syntax = ft or ""
+      end
+    end)
+  end,
+})
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("treesitter", { clear = true }),
   callback = function(ev)
-    local stat = vim.uv.fs_stat(vim.api.nvim_buf_get_name(ev.buf))
-    if stat and stat.size > big_file then
-      vim.b[ev.buf].big_file = true -- language servers check this (lua/plugins/lsp.lua)
-      vim.opt_local.foldmethod = "manual" -- the treesitter foldexpr would parse the whole file
-      vim.b[ev.buf].minihipatterns_disable = true
-      require("ibl").setup_buffer(ev.buf, { enabled = false })
-      return
-    end
     if pcall(vim.treesitter.start, ev.buf) then
       vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
     end
   end,
 })
-
 -- Text objects: va) vi" etc. get smarter, plus treesitter-based ones:
 --   af/if = function, ac/ic = class, ao/io = if/loop, aa/ia = argument (built in)
 local ai = require("mini.ai")

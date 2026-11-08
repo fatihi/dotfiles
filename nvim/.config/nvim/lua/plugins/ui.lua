@@ -57,7 +57,7 @@ end, { desc = "Keys for this buffer" })
 require("ibl").setup({
   indent = { char = "│" },
   scope = { show_start = false, show_end = false },
-  exclude = { filetypes = { "ministarter", "help", "trouble", "neo-tree", "oil" } },
+  exclude = { filetypes = { "ministarter", "help", "trouble", "neo-tree", "oil", "bigfile" } },
 })
 
 -- Colour previews: #rrggbb is shown in its own colour

@@ -165,12 +165,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("lsp_keys", { clear = true }),
   callback = function(ev)
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if vim.b[ev.buf].big_file then -- files over 1 MB (lua/plugins/editor.lua)
-      vim.schedule(function()
-        vim.lsp.buf_detach_client(ev.buf, ev.data.client_id)
-      end)
-      return
-    end
     if client and client.name == "ruff" then
       client.server_capabilities.hoverProvider = false -- K shows basedpyright's hover instead
     end
