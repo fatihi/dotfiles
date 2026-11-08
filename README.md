@@ -6,10 +6,10 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 
 | Package | Files |
 |---------|-------|
-| `bash`  | `.bashrc`, `.profile`, `.inputrc` |
-| `git`   | `.gitconfig` |
+| `bash`  | `.bashrc` (big shared history, fzf, zoxide), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
+| `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
-| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar with leader indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
 | `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |
@@ -23,7 +23,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
-                    gtk3-metatheme-dracula gtk4-metatheme-dracula
+                    gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```

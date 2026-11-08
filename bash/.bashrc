@@ -12,5 +12,23 @@
 
 test -s ~/.alias && . ~/.alias || true
 
+# History: keep a lot, with timestamps, and write each command right away so
+# shells running side by side (wezterm panes) don't lose each other's history
+HISTSIZE=50000
+HISTFILESIZE=100000
+HISTTIMEFORMAT='%F %T  '
+PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+
+# fzf: Ctrl+r = search history, Ctrl+t = insert a file path, Alt+c = cd into a folder
+if command -v fzf >/dev/null; then
+  export FZF_DEFAULT_OPTS="--height=40% --layout=reverse --border \
+    --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9,fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 \
+    --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6,marker:#ff79c6,spinner:#ffb86c,header:#6272a4"
+  eval "$(fzf --bash)"
+fi
+
+# zoxide: "z foo" jumps to the most used folder matching foo, "zi" picks one with fzf
+command -v zoxide >/dev/null && eval "$(zoxide init bash)"
+
 # Machine-specific settings and secrets (not tracked in dotfiles)
 test -s ~/.bashrc.local && . ~/.bashrc.local || true

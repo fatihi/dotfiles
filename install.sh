@@ -18,6 +18,7 @@ required_pkgs=(
   light-locker polkit-gnome NetworkManager-applet autorandr arandr
   brightnessctl playerctl wireplumber pulseaudio-utils   # brightness, media, wpctl, pactl
   gtk3-metatheme-dracula gtk4-metatheme-dracula
+  fzf zoxide                                    # fuzzy finder, smart cd (bash)
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do

@@ -1,3 +1,17 @@
 [user]
 	name = Fatih Inan
 	email = fatihinan@gmail.com
+[init]
+	defaultBranch = main
+[pull]
+	ff = only               # never create surprise merge commits on pull
+[push]
+	autoSetupRemote = true  # first push of a new branch sets its upstream
+[fetch]
+	prune = true            # drop remote branches that were deleted
+[diff]
+	algorithm = histogram
+[merge]
+	conflictStyle = zdiff3  # conflict markers also show the original text
+[rerere]
+	enabled = true          # remember how conflicts were resolved and reuse it

@@ -7,10 +7,10 @@
 
 test -z "$PROFILEREAD" && . /etc/profile || true
 
-# Some applications read the EDITOR variable to determine your favourite text
-# editor. So uncomment the line below and enter the editor of your choice :-)
-#export EDITOR=/usr/bin/vim
-#export EDITOR=/usr/bin/mcedit
+# Editor for git, crontab -e, awesome's "edit config" menu entry, ...
+# (awesome reads it at login, so log out and in after changing it)
+export EDITOR=nvim
+export VISUAL=$EDITOR
 
 # For some news readers it makes sense to specify the NEWSSERVER variable here
 #export NEWSSERVER=your.news.server
