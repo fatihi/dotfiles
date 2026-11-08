@@ -4,7 +4,8 @@
 --   menu.lua       main menu and launcher icon
 --   widgets.lua    clock/calendar, volume, cpu, battery
 --   bar.lua        wallpaper, tags and the top bar
---   keys.lua       key and mouse bindings (Mod4+F1 lists them)
+--   keys.lua       key and mouse bindings (Mod4+F1 searches them)
+--   keyhelp.lua    searchable key binding list (rofi)
 --   rules.lua      rules for new windows
 --   signals.lua    titlebars, focus, borders
 --   autostart.lua  keyboard layout and tray apps

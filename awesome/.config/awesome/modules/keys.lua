@@ -1,4 +1,4 @@
--- Key and mouse bindings. Mod4+F1 shows all of them.
+-- Key and mouse bindings. Mod4+F1 lists them (searchable), Mod4+Shift+F1 as a popup.
 local awful         = require("awful")
 local gears         = require("gears")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
@@ -9,6 +9,7 @@ local power         = require("modules.power")
 local scaling       = require("modules.scaling")
 local gfs           = require("gears.filesystem")
 local beautiful     = require("beautiful")
+local keyhelp       = require("modules.keyhelp")
 
 local modkey   = vars.modkey
 local terminal = vars.terminal
@@ -84,8 +85,10 @@ end
 -- {{{ Global keys
 local globalkeys = gears.table.join(
     -- Awesome
-    awful.key({ modkey }, "F1", hotkeys_popup.show_help,
-              { description = "show help", group = "awesome" }),
+    awful.key({ modkey }, "F1", keyhelp.show,
+              { description = "search key bindings (Enter runs one)", group = "awesome" }),
+    awful.key({ modkey, "Shift" }, "F1", hotkeys_popup.show_help,
+              { description = "show key bindings popup", group = "awesome" }),
     awful.key({ modkey }, "w", function() menu.main:show() end,
               { description = "show main menu", group = "awesome" }),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
@@ -301,6 +304,9 @@ local function resize(c, key)
     end
 end
 
+-- Bindings created from here on act on a window; keyhelp passes them client.focus
+local first_client_key = #awful.key.hotkeys + 1
+
 local resize_keys = {}
 for key, description in pairs({ h = "narrower", l = "wider", k = "shorter", j = "taller" }) do
     resize_keys = gears.table.join(resize_keys,
@@ -330,6 +336,10 @@ keys.client = gears.table.join(resize_keys,
         c:raise()
     end, { description = "maximize", group = "client" })
 )
+
+for i = first_client_key, #awful.key.hotkeys do
+    awful.key.hotkeys[i].client_key = true
+end
 
 keys.client_buttons = gears.table.join(
     awful.button({ }, 1, function(c) client.focus = c; c:raise() end),

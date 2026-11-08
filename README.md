@@ -53,6 +53,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness; do-not-disturb indicator |
 | `bar.lua` | wallpaper, tags (only those with windows, plus the current one), top bar sized per screen (systray on the primary screen) |
 | `keys.lua` | all key and mouse bindings |
+| `keyhelp.lua` | `Mod4+F1`: searchable list of all key bindings in rofi (type to filter by key, description or group; Enter runs the binding) |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
 | `rules.lua` | rules for new windows (dialogs and floating apps open centred; class/name values are Lua patterns, so escape `-` and `.` as `%-` and `%.`) |
 | `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus follows the mouse (only when it actually moves, so switching tags or closing a window doesn't steal focus), windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |
@@ -62,6 +63,7 @@ Keys beyond the awesome defaults (`Mod4+F1` lists everything):
 
 | Key | Action |
 |-----|--------|
+| `Mod4+F1` / `Mod4+Shift+F1` | search all key bindings (rofi, Enter runs one) / awesome's classic help popup |
 | `Mod4+p` / `Mod4+Shift+p` | rofi: apps / commands (awesome passes `-dpi`, so rofi matches the bar's size on each screen) |
 | `Mod4+h/j/k/l` | focus the window to the left / below / above / to the right (continues onto the other monitor at the edge) |
 | `Mod4+Shift+h/j/k/l` | swap with the window in that direction |
