@@ -76,6 +76,13 @@ if [[ ! -e "$spell_dir/de.utf-8.spl" ]] && command -v curl >/dev/null; then
   done
 fi
 
+# 5c. mise (tool version manager; not in the openSUSE repos), installed to
+#     ~/.local/bin/mise with the official installer. Update with "mise self-update".
+if ! command -v mise >/dev/null && [[ ! -x "$HOME/.local/bin/mise" ]] && command -v curl >/dev/null; then
+  echo "Installing mise to ~/.local/bin/mise"
+  curl -fsSL https://mise.run | sh || echo "Could not install mise" >&2
+fi
+
 # 6. Dark mode for apps that read dconf instead of files (libadwaita, Firefox)
 if command -v gsettings >/dev/null; then
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'

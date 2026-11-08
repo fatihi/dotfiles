@@ -31,6 +31,9 @@ fi
 # zoxide: "z foo" jumps to the most used folder matching foo, "zi" picks one with fzf
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"
 
+# mise: puts the tool versions from mise.toml (or ~/.config/mise/config.toml) on PATH
+command -v mise >/dev/null && eval "$(mise activate bash)"
+
 # wezterm shell integration: tells wezterm the current folder (new tabs/panes
 # open there) and marks where each prompt and command output starts.
 # Load after anything that edits PROMPT_COMMAND.

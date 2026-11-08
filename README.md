@@ -6,11 +6,12 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 
 | Package | Files |
 |---------|-------|
-| `bash`  | `.bashrc` (big shared history, fzf, zoxide, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
+| `bash`  | `.bashrc` (big shared history, fzf, zoxide, mise, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
 | `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
 | `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Alt+h/j/k/l` move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
 | `nvim` | `.config/nvim/` (see [Neovim](#neovim) below) |
+| `mise` | `.config/mise/config.toml` (global tool versions, empty for now; projects pin their own in `mise.toml`) |
 | `lazygit` | `.config/lazygit/config.yml` (Dracula colours; `e` opens the file in the surrounding Neovim) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
@@ -37,7 +38,9 @@ and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
 keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
 files. Finally it copies everything under `system/` to the same path under `/`
 (with sudo, only files that changed; the first time, the original is kept as
-`*.orig`). It is safe to re-run.
+`*.orig`). If `mise` is missing it installs it to `~/.local/bin/mise` with the
+official installer (`curl https://mise.run | sh`; it isn't in the openSUSE repos),
+and it downloads Neovim's German spell files. It is safe to re-run.
 
 Theme: Dracula everywhere (awesome, wezterm, Neovim, lazygit, GTK 3/4). GTK 4 / libadwaita apps
 ignore theme names, so `gtk.css` imports the Dracula CSS directly.
@@ -165,6 +168,9 @@ The main ones:
   reloading awesome, or the missing `require` makes it fall back to the default config.
 - picom: restart after editing (`pkill -x picom`, then `Mod4+Ctrl+r`).
 - Files in `system/` only take effect after running `./install.sh` again.
+- mise: `mise use -g node@lts` writes the global default into the symlinked
+  `config.toml` (commit it); `mise use node@22` in a project writes its own
+  `mise.toml` there. Update mise itself with `mise self-update`.
 - Locale changes in `.i18n` apply after logging out and in.
 - Manual stow from the repo root: `stow <pkg>` / `stow -D <pkg>` (`.stowrc` sets
   the target to `~` and disables folding).
