@@ -31,7 +31,8 @@ local servers = {
   "ruff", -- Python: lint (as a server) and format (via conform below)
 }
 local tools = { "stylua", "shellcheck", "shfmt" } -- formatters and linters
--- Not listed: the language server formats (JSON, YAML, TOML)
+-- Formatted on save. Not listed: JSON, YAML, TOML, which their language server
+-- formats on <leader>cf only (see "Formatting on save" below)
 local formatters_by_ft = {
   lua = { "stylua" },
   sh = { "shfmt" }, -- indent from .editorconfig, else the buffer's shiftwidth
@@ -229,7 +230,11 @@ require("blink.cmp").setup({
 })
 vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities() })
 
--- Formatting: on save (falls back to the language server if no formatter is set)
+-- Formatting on save: only with the formatters above (ruff, shfmt, and stylua
+-- where a stylua.toml exists), which follow the project's own settings. Language
+-- servers format only on <leader>cf: on save, jsonls/yamlls/taplo would rewrite
+-- every JSON/YAML/TOML file you touch (package-lock.json, other projects'
+-- configs, ...) in their style and fill the git diff.
 local conform = require("conform")
 conform.setup({
   formatters_by_ft = formatters_by_ft,
@@ -242,7 +247,7 @@ conform.setup({
     if vim.g.autoformat == false then
       return
     end
-    return { timeout_ms = 1000, lsp_format = "fallback" }
+    return { timeout_ms = 1000, lsp_format = "never" }
   end,
 })
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()" -- gq uses it too
