@@ -23,6 +23,7 @@ config.color_scheme = "Dracula (Official)"
 config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = true
+config.tab_max_width = 25
 
 -- Mode indicator on the right of the tab bar: " LEADER " while Ctrl+a is
 -- waiting for the next key, " COPY " / " SEARCH " in copy and search mode.
