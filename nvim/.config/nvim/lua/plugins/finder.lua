@@ -59,4 +59,11 @@ require("neo-tree").setup({
     filtered_items = { hide_dotfiles = false },
   },
 })
-map("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "File tree" })
+-- Reveals the current file (asks to change the working folder if the file is
+-- outside it). In buffers that aren't files (start screen, oil, help, ...) it
+-- just opens the working folder, instead of trying to reveal e.g. "ministarter://1"
+map("n", "<leader>e", function()
+  local name = vim.api.nvim_buf_get_name(0)
+  local is_file = vim.bo.buftype == "" and name ~= "" and not name:match("^%a+://")
+  require("neo-tree.command").execute(is_file and { toggle = true } or { toggle = true, dir = vim.uv.cwd() })
+end, { desc = "File tree" })
