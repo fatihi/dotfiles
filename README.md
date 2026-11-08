@@ -9,7 +9,9 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `bash`  | `.bashrc` (big shared history, fzf, zoxide, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
 | `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
-| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar with leader/copy/search mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. copy mode, search, quick select, pane picker/swap, tab moving; links open on Ctrl+click) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Alt+h/j/k/l` move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
+| `nvim` | `.config/nvim/` (see [Neovim](#neovim) below) |
+| `lazygit` | `.config/lazygit/config.yml` (Dracula colours; `e` opens the file in the surrounding Neovim) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
 | `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |
@@ -23,7 +25,8 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
-                    gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide
+                    gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
+                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts chafa
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -36,7 +39,7 @@ files. Finally it copies everything under `system/` to the same path under `/`
 (with sudo, only files that changed; the first time, the original is kept as
 `*.orig`). It is safe to re-run.
 
-Theme: Dracula everywhere (awesome, wezterm, GTK 3/4). GTK 4 / libadwaita apps
+Theme: Dracula everywhere (awesome, wezterm, Neovim, lazygit, GTK 3/4). GTK 4 / libadwaita apps
 ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 
 ## awesome
@@ -91,6 +94,48 @@ switches profiles automatically on hotplug; awesome applies the matching one at 
 Lock screen: `light-locker` hands over to the LightDM greeter. The screen blanks
 after 5 minutes idle and locks 10 seconds later; it also locks on suspend and
 lid close. The monitor turns off after 10 minutes.
+
+## Neovim
+
+Needs Neovim 0.12+. Plugins are managed by the built-in `vim.pack`: they are
+cloned on the first start, and their versions are pinned in
+`nvim-pack-lock.json` (committed). Update with `:lua vim.pack.update()`, then
+commit the changed lockfile. Language servers and formatters are installed by
+mason (`:Mason`) on the first start, also in the background.
+
+| File | Contents |
+|------|----------|
+| `init.lua` | loads the modules below in order |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds |
+| `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree |
+| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside |
+| `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
+| `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), sessions (persistence), start screen (mini.starter) |
+| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), text objects (mini.ai), surround, autopairs, flash, smart-splits, todo-comments, render-markdown |
+| `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
+| `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
+
+Press `Space` and wait to see all leader keys, or `Space f k` to search every key.
+The main ones:
+
+| Key | Action |
+|-----|--------|
+| `Space Space` / `Space f g` / `Space f b` / `Space f r` | find files / grep / buffers / recent files |
+| `-` / `Space e` | oil (parent folder as a buffer, `:w` applies edits) / neo-tree sidebar |
+| `s` / `S` | flash jump / select a treesitter node |
+| `gsa` / `gsd` / `gsr` | add / delete / replace surrounding (e.g. `gsaiw"`) |
+| `af` `if` / `ac` `ic` / `ao` `io` | function / class / if-or-loop text objects |
+| `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
+| `gd` / `grr` / `grn` / `gra` / `K` | definition / references / rename / code action / hover |
+| `Ctrl+Space` / `Ctrl+y` | open completion / accept |
+| `Space c f` / `Space u f` | format / toggle format on save |
+| `Space x x` / `Space x t` | diagnostics / TODOs in trouble |
+| `]h` `[h` / `Space g s` / `Space g p` / `Space g b` | next/prev git hunk / stage / preview / blame |
+| `Space g g` | lazygit |
+| `Space q s` / `Space q l` | restore this folder's session / the last session |
+| `Space u u` / `Space u m` | undo tree / toggle markdown rendering |
 
 ## Day to day
 

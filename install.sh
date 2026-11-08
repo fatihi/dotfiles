@@ -15,10 +15,14 @@ done
 required_pkgs=(
   awesome awesome-vicious awesome-freedesktop   # window manager + bar widgets + menu
   wezterm rofi flameshot picom                  # terminal, launcher, screenshots, compositor
+  nerdfonts-symbolsonly-fonts                   # current Nerd Font icons for wezterm/Neovim
   light-locker polkit-gnome NetworkManager-applet autorandr arandr
   brightnessctl playerctl wireplumber pulseaudio-utils   # brightness, media, wpctl, pactl
   gtk3-metatheme-dracula gtk4-metatheme-dracula
   fzf zoxide                                    # fuzzy finder, smart cd (bash)
+  neovim ripgrep fd gcc tree-sitter xclip       # editor, its search tools, treesitter parser builds, clipboard
+  chafa                                         # image previews in fzf-lua
+  lazygit                                       # git UI (also inside neovim)
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do

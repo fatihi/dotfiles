@@ -6,9 +6,12 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 
--- Font (JetBrains Mono ships with wezterm; DejaVu as fallback)
+-- Font (JetBrains Mono ships with wezterm; DejaVu as fallback). Icons come from
+-- the system's Symbols Nerd Font: the copy built into wezterm is older and lacks
+-- newer icons (e.g. some used by Neovim plugins).
 config.font = wezterm.font_with_fallback({
   "JetBrains Mono",
+  "Symbols Nerd Font Mono",
   "DejaVu Sans Mono",
 })
 config.font_size = 11.0
@@ -79,9 +82,9 @@ config.scrollback_lines = 10000
 -- Panes and tabs: press Ctrl+a, then a key below (within 2 seconds)
 config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 }
 config.keys = {
-  -- Split: - = new pane below, \ = new pane to the right
-  { key = "-",  mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-  { key = "\\", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  -- Split: - = new pane below, | = new pane to the right
+  { key = "-", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "|", mods = "LEADER|SHIFT", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   -- Move between panes
   { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
   { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
@@ -131,6 +134,32 @@ config.mouse_bindings = {
 -- Shift+h/j/k/l: resize the current pane
 for key, dir in pairs({ H = "Left", J = "Down", K = "Up", L = "Right" }) do
   table.insert(config.keys, { key = key, mods = "LEADER", action = act.AdjustPaneSize({ dir, 5 }) })
+end
+
+-- Without the leader: Ctrl+h/j/k/l = move to the pane in that direction,
+-- Alt+h/j/k/l = resize the pane. When Neovim runs in the pane, the key goes to
+-- Neovim instead (smart-splits.nvim), which moves between its splits and hands
+-- back to wezterm at the edge. Neovim announces itself via the IS_NVIM user var.
+local function is_nvim(pane)
+  return pane:get_user_vars().IS_NVIM == "true"
+end
+for key, dir in pairs({ h = "Left", j = "Down", k = "Up", l = "Right" }) do
+  for mods, action in pairs({
+    CTRL = act.ActivatePaneDirection(dir),
+    ALT = act.AdjustPaneSize({ dir, 3 }),
+  }) do
+    table.insert(config.keys, {
+      key = key,
+      mods = mods,
+      action = wezterm.action_callback(function(window, pane)
+        if is_nvim(pane) then
+          window:perform_action(act.SendKey({ key = key, mods = mods }), pane)
+        else
+          window:perform_action(action, pane)
+        end
+      end),
+    })
+  end
 end
 
 return config
