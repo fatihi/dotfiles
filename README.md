@@ -53,7 +53,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness; do-not-disturb indicator |
 | `bar.lua` | wallpaper, tags (only those with windows, plus the current one), top bar sized per screen (systray on the primary screen) |
 | `keys.lua` | all key and mouse bindings |
-| `keyhelp.lua` | `Mod4+F1`: searchable list of all key bindings in rofi (type to filter by key, description or group; Enter runs the binding) |
+| `keyhelp.lua` | `Mod4+F1`: searchable list of all key bindings in rofi (fuzzy search over key, description and group, best matches first; Enter runs the binding) |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
 | `rules.lua` | rules for new windows (dialogs and floating apps open centred; class/name values are Lua patterns, so escape `-` and `.` as `%-` and `%.`) |
 | `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus follows the mouse (only when it actually moves, so switching tags or closing a window doesn't steal focus), windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |

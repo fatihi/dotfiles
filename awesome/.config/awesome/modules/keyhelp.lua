@@ -1,6 +1,6 @@
 -- Searchable list of all key bindings (Mod4+F1), shown with rofi.
 -- Every awful.key with a description is listed as "keys  description  [group]";
--- type to filter (words match in any order), Enter runs the selected binding.
+-- type to filter (fuzzy, best matches first), Enter runs the selected binding.
 local awful   = require("awful")
 local gfs     = require("gears.filesystem")
 local scaling = require("modules.scaling")
@@ -73,6 +73,7 @@ function keyhelp.show()
 
     -- Monospace rows so the key column lines up
     local cmd = scaling.rofi("-dmenu -i -no-custom -format i -p Keys "
+        .. "-matching fuzzy -sort -sorting-method fzf "
         .. [[-theme-str 'window { width: 55%; } listview { lines: 15; } ]]
         .. [[element-text { font: "monospace 10"; }']])
         .. " < '" .. path .. "'"
