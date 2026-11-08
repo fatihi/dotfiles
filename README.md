@@ -6,10 +6,10 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 
 | Package | Files |
 |---------|-------|
-| `bash`  | `.bashrc` (big shared history, fzf, zoxide), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
+| `bash`  | `.bashrc` (big shared history, fzf, zoxide, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
 | `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
-| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar with leader indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font, Dracula colours, tab bar with leader indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. copy mode, search, quick select, pane picker/swap, tab moving; links open on Ctrl+click) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
 | `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |

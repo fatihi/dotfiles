@@ -22,8 +22,8 @@ config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = true
 
 -- " LEADER " on the right of the tab bar while Ctrl+a is waiting for the next key.
--- Checked every 250 ms so it shows up well within the 2 s leader timeout.
-config.status_update_interval = 250
+-- Checked every 500 ms so it shows up well within the 2 s leader timeout.
+config.status_update_interval = 500
 wezterm.on("update-status", function(window, _)
   if window:leader_is_active() then
     window:set_right_status(wezterm.format({
@@ -86,12 +86,32 @@ config.keys = {
       if line then window:active_tab():set_title(line) end
     end),
   }) },
+  -- Move the current tab left/right
+  { key = "{", mods = "LEADER|SHIFT", action = act.MoveTabRelative(-1) },
+  { key = "}", mods = "LEADER|SHIFT", action = act.MoveTabRelative(1) },
+  -- Pick a pane by its label: q = jump to it, s = swap it with the current one
+  { key = "q", mods = "LEADER", action = act.PaneSelect },
+  { key = "s", mods = "LEADER", action = act.PaneSelect({ mode = "SwapWithActive" }) },
+  -- [ = copy mode (scroll and select with vim keys, y copies, Esc leaves)
+  -- / = search the scrollback, f = quick select (pick a URL, hash or path to copy)
+  { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
+  { key = "/", mods = "LEADER", action = act.Search({ CaseInSensitiveString = "" }) },
+  { key = "f", mods = "LEADER", action = act.QuickSelect },
   -- Ctrl+a twice sends a real Ctrl+a (start of line in bash)
   { key = "a", mods = "LEADER|CTRL", action = act.SendKey({ key = "a", mods = "CTRL" }) },
 }
 for i = 1, 9 do
   table.insert(config.keys, { key = tostring(i), mods = "LEADER", action = act.ActivateTab(i - 1) })
 end
+-- Mouse: a click only selects text; Ctrl+click opens a link
+config.mouse_bindings = {
+  { event = { Up = { streak = 1, button = "Left" } }, mods = "NONE",
+    action = act.CompleteSelection("ClipboardAndPrimarySelection") },
+  { event = { Up = { streak = 1, button = "Left" } }, mods = "CTRL", action = act.OpenLinkAtMouseCursor },
+  -- swallow the press so Ctrl+click doesn't start a selection
+  { event = { Down = { streak = 1, button = "Left" } }, mods = "CTRL", action = act.Nop },
+}
+
 -- Shift+h/j/k/l: resize the current pane
 for key, dir in pairs({ H = "Left", J = "Down", K = "Up", L = "Right" }) do
   table.insert(config.keys, { key = key, mods = "LEADER", action = act.AdjustPaneSize({ dir, 5 }) })

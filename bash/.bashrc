@@ -30,5 +30,12 @@ fi
 # zoxide: "z foo" jumps to the most used folder matching foo, "zi" picks one with fzf
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"
 
+# wezterm shell integration: tells wezterm the current folder (new tabs/panes
+# open there) and marks where each prompt and command output starts.
+# Load after anything that edits PROMPT_COMMAND.
+if [ "$TERM_PROGRAM" = "WezTerm" ] && [ -r /usr/etc/profile.d/wezterm.sh ]; then
+  . /usr/etc/profile.d/wezterm.sh
+fi
+
 # Machine-specific settings and secrets (not tracked in dotfiles)
 test -s ~/.bashrc.local && . ~/.bashrc.local || true
