@@ -46,38 +46,43 @@ function widgets.osd(kind, title, pct)
 end
 -- }}}
 
--- Separator between widgets: a short vertical line with space on both sides.
--- new_separator() makes another one (a widget that is hidden on some screens
--- needs its own, see bar.lua).
-function widgets.new_separator()
+-- Separator between widgets: a short vertical line with space on both sides,
+-- scaled for screen s. Every place in a bar needs its own (bar.lua makes them).
+function widgets.new_separator(s)
     return wibox.widget {
         widget       = wibox.widget.separator,
         orientation  = "vertical",
-        forced_width = dpi(2 * beautiful.bar_padding + 1),
+        forced_width = dpi(2 * beautiful.bar_padding + 1, s),
         span_ratio   = 0.5,
-        thickness    = dpi(1),
+        thickness    = dpi(1, s),
         color        = colors.selection,
     }
 end
-widgets.separator = widgets.new_separator()
 
 -- {{{ Do not disturb (Mod4+Shift+d): notifications are held back and shown when it
 -- is turned off. The bar shows "dnd" while it is on. Battery warnings and the
 -- volume/brightness popups still appear.
 widgets.dnd = {}
-widgets.dnd.widget = wibox.widget {
-    {
-        markup = colored("dnd", colors.orange),
-        widget = wibox.widget.textbox,
-    },
-    widgets.new_separator(),
-    visible = false,
-    layout  = wibox.layout.fixed.horizontal,
-}
+local dnd_indicators = setmetatable({}, { __mode = "k" })  -- one per bar
+
+-- The "dnd" indicator for screen s's bar
+function widgets.dnd.new(s)
+    local w = wibox.widget {
+        {
+            markup = colored("dnd", colors.orange),
+            widget = wibox.widget.textbox,
+        },
+        widgets.new_separator(s),
+        visible = naughty.is_suspended(),
+        layout  = wibox.layout.fixed.horizontal,
+    }
+    dnd_indicators[w] = true
+    return w
+end
 
 function widgets.dnd.toggle()
     naughty.toggle()
-    widgets.dnd.widget.visible = naughty.is_suspended()
+    for w in pairs(dnd_indicators) do w.visible = naughty.is_suspended() end
 end
 -- }}}
 
@@ -104,7 +109,8 @@ vicious.register(widgets.cpu, vicious.widgets.cpu, function(_, args)
 end, 2)
 
 -- {{{ Battery: red below 20%, yellow below 50%, green otherwise.
--- "+" = charging, "-" = discharging. Warns once at 10% and once at 5% while discharging.
+-- "+" = charging, "-" = discharging. Warns once at 10% and once at 5% while discharging;
+-- the warnings are re-armed once the charger is plugged in.
 -- widgets.battery is nil on machines without a battery (the bar then leaves it out).
 
 -- First system battery in /sys/class/power_supply (BAT0, BAT1, CMB0, ...).
@@ -144,18 +150,25 @@ if widgets.battery then vicious.register(widgets.battery, vicious.widgets.bat, f
     local discharging = state == "-"
 
     if discharging then
+        -- Warn only for the lowest level reached (e.g. one warning, not two, when
+        -- waking up at 4%), and count the higher levels as warned too.
+        local reached
         for _, level in ipairs(battery_warn_levels) do
-            if pct <= level and not battery_warned[level] then
-                battery_warned[level] = true
-                naughty.notify({
-                    preset = naughty.config.presets.critical,
-                    ignore_suspend = true,  -- also in do-not-disturb
-                    title  = "Battery low: " .. pct .. "%",
-                    text   = "Plug in the charger" .. (time and " (" .. time .. "h left)." or "."),
-                })
-            end
+            if pct <= level and (not reached or level < reached) then reached = level end
         end
-    elseif state == "+" or state == "↯" then  -- charging or full
+        if reached and not battery_warned[reached] then
+            for _, level in ipairs(battery_warn_levels) do
+                if level >= reached then battery_warned[level] = true end
+            end
+            naughty.notify({
+                preset = naughty.config.presets.critical,
+                ignore_suspend = true,  -- also in do-not-disturb
+                title  = "Battery low: " .. pct .. "%",
+                text   = "Plug in the charger" .. (time and " (" .. time .. "h left)." or "."),
+            })
+        end
+    else
+        -- Charging, full, or plugged in but held at a charge limit ("not charging")
         battery_warned = {}
     end
 

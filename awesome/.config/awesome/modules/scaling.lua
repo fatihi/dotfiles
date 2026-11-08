@@ -54,8 +54,9 @@ end
 
 -- Call before beautiful.init(). Sets every screen's DPI, and uses the highest
 -- one for sizes that are the same on all screens (menus, notifications,
--- titlebars, gaps), so text never gets cut off. A screen plugged in later gets
--- its own DPI for the bar; restart awesome (Mod4+Ctrl+r) to recompute the rest.
+-- titlebars), so text never gets cut off. The bar, gaps and borders follow each
+-- screen's own DPI, also for screens plugged in or changed later (bar.lua);
+-- restart awesome (Mod4+Ctrl+r) to recompute the rest.
 function scaling.init()
     local highest = 96
     for s in screen do

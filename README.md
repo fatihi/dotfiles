@@ -47,7 +47,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | Module | Contents |
 |--------|----------|
 | `vars.lua` | terminal (wezterm), modkey, keyboard layout (`de` variant `us`), lock command and idle times, screenshot folder |
-| `scaling.lua` | size of awesome's own UI per screen: measures each monitor's real DPI and uses 96/120/144 (the 14" 1920x1200 panel gets 1.25x); apps are not affected |
+| `scaling.lua` | size of awesome's own UI per screen: measures each monitor's real DPI and uses 96/120/144 (the 14" 1920x1200 panel gets 1.25x); the bar, gaps and borders follow each screen (rescaled when a monitor changes resolution), menus/notifications/titlebars use the highest; apps are not affected |
 | `layouts.lua` | tile (default), tile.bottom, max, floating |
 | `menu.lua` | main menu and launcher icon |
 | `widgets.lua` | volume (wpctl, updated live via `pactl subscribe`), cpu, battery (`+` = charging, warns at 10% and 5%; hidden on machines without one), clock with calendar popup; on-screen popups for volume, mic and brightness; do-not-disturb indicator |
@@ -55,7 +55,7 @@ ignore theme names, so `gtk.css` imports the Dracula CSS directly.
 | `keys.lua` | all key and mouse bindings |
 | `power.lua` | rofi power menu: lock, suspend, logout, reboot, shut down (the last three ask first) |
 | `rules.lua` | rules for new windows (dialogs and floating apps open centred; class/name values are Lua patterns, so escape `-` and `.` as `%-` and `%.`) |
-| `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus, windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |
+| `signals.lua` | titlebars only on floating windows/dialogs (buttons: floating, maximize, close), focus follows the mouse (only when it actually moves, so switching tags or closing a window doesn't steal focus), windows of an unplugged monitor go to the same tag number, borders (hidden for a lone tiled window, the max layout and maximized windows) |
 | `autostart.lua` | `setxkbmap`, idle timers (`xset`), `light-locker`, `autorandr --change`, `picom`, polkit agent (`polkit-gnome`), `nm-applet` |
 
 Keys beyond the awesome defaults (`Mod4+F1` lists everything):

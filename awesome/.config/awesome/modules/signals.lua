@@ -75,10 +75,21 @@ client.connect_signal("manage", function(c)
 end)
 -- }}}
 
--- {{{ Focus follows mouse, coloured border on the focused window
+-- {{{ Focus follows mouse, coloured border on the focused window.
+-- Only when the mouse actually moved: switching tags or closing a window can put
+-- another window under a resting pointer, and that should not steal the focus.
+-- The pointer position is remembered at every re-layout; the enter event that a
+-- re-layout causes then finds the pointer where it was and is ignored.
+local last_pointer = mouse.coords()
+local function remember_pointer() last_pointer = mouse.coords() end
+screen.connect_signal("arrange", remember_pointer)
+tag.connect_signal("property::selected", remember_pointer)
+
 client.connect_signal("mouse::enter", function(c)
-    if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-        and awful.client.focus.filter(c) then
+    local p = mouse.coords()
+    local moved = p.x ~= last_pointer.x or p.y ~= last_pointer.y
+    last_pointer = p
+    if moved and awful.client.focus.filter(c) then
         client.focus = c
     end
 end)
@@ -102,17 +113,19 @@ end)
 -- }}}
 
 -- {{{ No border when it can't show anything: a single tiled window, the max layout,
--- or a maximized window. Floating windows keep theirs.
+-- or a maximized window. Floating windows keep theirs. The width is scaled for
+-- the window's screen (re-applied when it moves to another one).
 screen.connect_signal("arrange", function(s)
     local t = s.selected_tag
     local layout = t and t.layout or awful.layout.suit.floating
     local tiling = layout ~= awful.layout.suit.floating
     local single = #s.tiled_clients == 1 or layout.name == "max"
+    local width = beautiful.xresources.apply_dpi(beautiful.border_px or 2, s)
     for _, c in ipairs(s.clients) do
         if c.maximized or (tiling and single and not c.floating) then
             c.border_width = 0
         else
-            c.border_width = beautiful.border_width
+            c.border_width = width
         end
     end
 end)

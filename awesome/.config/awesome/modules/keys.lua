@@ -8,6 +8,7 @@ local widgets       = require("modules.widgets")
 local power         = require("modules.power")
 local scaling       = require("modules.scaling")
 local gfs           = require("gears.filesystem")
+local beautiful     = require("beautiful")
 
 local modkey   = vars.modkey
 local terminal = vars.terminal
@@ -22,18 +23,34 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
--- {{{ SSH prompt: completes host names from ~/.ssh/config
+-- {{{ SSH prompt: completes the host aliases from ~/.ssh/config
+-- Only "Host" lines count (not "HostName"), so picking a host keeps its User, Port, ...
+-- "Host a b" gives two entries; patterns (*, ?) and negations (!) are skipped.
+local function ssh_hosts()
+    local hosts, seen = {}, {}
+    local f = io.open(os.getenv("HOME") .. "/.ssh/config")
+    if not f then return hosts end
+    for line in f:lines() do
+        local names = line:gsub("#.*", ""):match("^%s*[Hh][Oo][Ss][Tt]%s*[%s=]%s*(.-)%s*$")
+        for name in (names or ""):gmatch("%S+") do
+            if not name:find("[*?!]") and not seen[name] then
+                seen[name] = true
+                table.insert(hosts, name)
+            end
+        end
+    end
+    f:close()
+    table.sort(hosts)
+    return hosts
+end
+
 local function ssh_prompt()
     awful.prompt.run {
         prompt       = "ssh: ",
         textbox      = awful.screen.focused().mypromptbox.widget,
         exe_callback = function(h) awful.spawn(terminal .. " -e ssh " .. h) end,
         completion_callback = function(cmd, cur_pos, ncomp)
-            local hosts = {}
-            local f = io.popen("sed 's/#.*//;/[ \\t]*Host\\(Name\\)\\?[ \\t]\\+/!d;s///;/[*?]/d' "
-                .. os.getenv("HOME") .. "/.ssh/config 2>/dev/null | sort")
-            for host in f:lines() do table.insert(hosts, host) end
-            f:close()
+            local hosts = ssh_hosts()
             if cur_pos ~= #cmd + 1 and cmd:sub(cur_pos, cur_pos) ~= " " then
                 return cmd, cur_pos
             end
@@ -246,21 +263,22 @@ root.keys(globalkeys)
 -- {{{ Client keys and buttons (applied through rules.lua)
 
 -- Resize the focused window from the keyboard (Mod4+Alt+h/j/k/l).
---   Floating: h/l = narrower/wider, k/j = shorter/taller, in pixels.
+--   Floating: h/l = narrower/wider, k/j = shorter/taller, in steps scaled for the screen.
 --   Tiled:    h/l = narrower/wider, k/j = shorter/taller, by moving the main split
 --             (the key along the split's direction) or the window's share of its stack.
-local resize_step_px     = 40
+local resize_step_px     = 40  -- at 96 DPI
 local resize_step_factor = 0.05
 
 local function resize(c, key)
     local floating = c.floating
         or awful.layout.get(c.screen) == awful.layout.suit.floating
     if floating then
+        local step = beautiful.xresources.apply_dpi(resize_step_px, c.screen)
         local dw, dh = 0, 0
-        if key == "h" then dw = -resize_step_px
-        elseif key == "l" then dw = resize_step_px
-        elseif key == "k" then dh = -resize_step_px
-        elseif key == "j" then dh = resize_step_px end
+        if key == "h" then dw = -step
+        elseif key == "l" then dw = step
+        elseif key == "k" then dh = -step
+        elseif key == "j" then dh = step end
         c:relative_move(0, 0, dw, dh)
     else
         -- tile/tile.left split left|right (h/l move it); tile.bottom/tile.top split

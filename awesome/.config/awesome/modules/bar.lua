@@ -63,27 +63,33 @@ local function set_wallpaper(s)
     end
 end
 
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
-
 -- The systray only draws on the primary screen (and follows it when the primary
--- changes), so its separator is hidden on the other screens.
-local function update_systray_separators()
+-- changes), so its separator is hidden on the other screens, and the space
+-- between its icons is scaled for the primary screen.
+local function update_systray()
     for s in screen do
         if s.systray_separator then s.systray_separator.visible = (s == screen.primary) end
     end
+    if screen.primary then
+        beautiful.systray_icon_spacing =
+            beautiful.xresources.apply_dpi(beautiful.systray_spacing or 6, screen.primary)
+        wibox.widget.systray():emit_signal("widget::layout_changed")
+    end
 end
-screen.connect_signal("primary_changed", update_systray_separators)
+screen.connect_signal("primary_changed", update_systray)
 
-awful.screen.connect_for_each_screen(function(s)
-    -- Sizes in this function are scaled for this screen (see scaling.lua)
-    scaling.apply(s)
+-- Gaps between tiled windows, scaled for the screen
+local function apply_gaps(s)
+    local gap = beautiful.xresources.apply_dpi(beautiful.gap_px or 4, s)
+    for _, t in ipairs(s.tags) do t.gap = gap end
+end
+
+-- Builds (or rebuilds) the top bar of a screen. Sizes are scaled for the screen
+-- (see scaling.lua) and fixed once built, so the bar is rebuilt when its DPI changes.
+local function build_bar(s)
     local function sdpi(v) return beautiful.xresources.apply_dpi(v, s) end
     local pad = sdpi(beautiful.bar_padding or 8)
-
-    set_wallpaper(s)
-
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    local function separator() return widgets.new_separator(s) end
 
     s.mypromptbox = awful.widget.prompt()
 
@@ -122,7 +128,7 @@ awful.screen.connect_for_each_screen(function(s)
         layout  = {
             layout          = wibox.layout.flex.horizontal,
             max_widget_size = sdpi(300),
-            spacing         = beautiful.tasklist_spacing,
+            spacing         = sdpi(beautiful.tasklist_spacing or 4),
         },
         widget_template = {
             {
@@ -144,7 +150,7 @@ awful.screen.connect_for_each_screen(function(s)
         },
     }
 
-    s.systray_separator = widgets.new_separator()
+    s.systray_separator = separator()
     s.systray_separator.visible = (s == screen.primary)
 
     local right = {
@@ -152,20 +158,21 @@ awful.screen.connect_for_each_screen(function(s)
         { wibox.widget.systray(), top = sdpi(4), bottom = sdpi(4),
           widget = wibox.container.margin },
         s.systray_separator,
-        widgets.dnd.widget,
+        widgets.dnd.new(s),
         widgets.volume.widget,
-        widgets.separator,
+        separator(),
         widgets.cpu,
     }
     if widgets.battery then  -- nil without a battery
-        table.insert(right, widgets.separator)
+        table.insert(right, separator())
         table.insert(right, widgets.battery)
     end
-    table.insert(right, widgets.separator)
+    table.insert(right, separator())
     table.insert(right, widgets.clock)
     table.insert(right, { s.mylayoutbox, left = pad, top = sdpi(5), bottom = sdpi(5),
                           widget = wibox.container.margin })
 
+    if s.mywibox then s.mywibox:remove() end
     s.mywibox = awful.wibar({ position = "top", screen = s,
                               height = sdpi(beautiful.bar_height or 26) })
     s.mywibox:setup {
@@ -184,4 +191,26 @@ awful.screen.connect_for_each_screen(function(s)
         left = pad, right = pad,
         widget = wibox.container.margin,
     }
+end
+
+-- A screen's geometry changed (e.g. autorandr switched its resolution):
+-- re-set the wallpaper, and if the screen now has another DPI, rescale it.
+screen.connect_signal("property::geometry", function(s)
+    set_wallpaper(s)
+    local old_dpi = s.dpi
+    scaling.apply(s)
+    if s.dpi ~= old_dpi and s.mywibox then  -- (no bar yet: a screen being set up)
+        apply_gaps(s)
+        build_bar(s)
+        update_systray()
+    end
+end)
+
+awful.screen.connect_for_each_screen(function(s)
+    scaling.apply(s)
+    set_wallpaper(s)
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    apply_gaps(s)
+    build_bar(s)
+    update_systray()
 end)

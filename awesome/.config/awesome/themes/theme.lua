@@ -32,15 +32,18 @@ theme.font      = "sans 9"
 theme.font_bold = "sans bold 9"
 
 -- {{{ Sizes
--- The bar is scaled per screen in bar.lua, so these two are plain 96-DPI values
+-- Plain 96-DPI values: these are scaled per screen (bar.lua, signals.lua)
 theme.bar_height      = 26
 theme.bar_padding     = 8   -- space at the bar's ends and around its widgets
+theme.tasklist_spacing = 4  -- between windows in the bar
+theme.systray_spacing = 6   -- between tray icons (scaled for the primary screen)
+theme.gap_px          = 4   -- between tiled windows
+theme.border_px       = 2   -- window border
+-- Scaled once with the highest DPI (same size on every screen)
 theme.titlebar_size   = dpi(22)
 theme.menu_height     = dpi(24)
 theme.menu_width      = dpi(200)
 theme.menu_border_width = dpi(1)
-theme.systray_icon_spacing = dpi(6)
-theme.tasklist_spacing = dpi(4)
 -- }}}
 
 theme.bg_normal   = c.bg
@@ -57,11 +60,12 @@ theme.fg_minimize = c.comment
 -- Icons for menus and the launcher
 theme.icon_theme = "Adwaita"
 
--- Gaps between tiled windows, slightly thicker border to show focus.
+-- Gaps between tiled windows, slightly thicker border to show focus (sizes:
+-- gap_px/border_px above; these two are only the starting values).
 -- A window alone on its tag gets no gaps (and no border, see signals.lua).
-theme.useless_gap       = dpi(4)
+theme.useless_gap       = dpi(theme.gap_px)
 theme.gap_single_client = false
-theme.border_width      = dpi(2)
+theme.border_width      = dpi(theme.border_px)
 
 theme.border_normal = c.selection
 theme.border_focus  = c.purple
