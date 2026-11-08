@@ -115,7 +115,7 @@ need `npm`, the Python ones `python3`).
 | `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
 | `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), big-file guard (over 1 MB: no treesitter, indent guides, colour previews or language servers), text objects (mini.ai), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, render-markdown |
 | `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
@@ -134,6 +134,7 @@ The main ones:
 | `af` `if` / `ac` `ic` / `ao` `io` | function / class / if-or-loop text objects |
 | `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
 | `gd` / `grr` / `grn` / `gra` / `K` | definition / references / rename / code action / hover |
+| `]]` / `[[` | next / previous use of the symbol under the cursor |
 | `Ctrl+Space` / `Ctrl+y` | open completion / accept |
 | `Space c f` / `Space u f` | format / toggle format on save |
 | `Space x x` / `Space x t` | diagnostics / TODOs in trouble |

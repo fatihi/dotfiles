@@ -97,6 +97,67 @@ vim.diagnostic.config({
   },
 })
 
+-- Jump to the next (dir = 1) / previous (-1) use of the symbol under the cursor,
+-- wrapping around at the end of the file. Ctrl+o goes back.
+local function jump_reference(dir)
+  local buf, win = vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
+  local client = vim.lsp.get_clients({ bufnr = buf, method = "textDocument/documentHighlight" })[1]
+  if not client then
+    return
+  end
+  local params = vim.lsp.util.make_position_params(win, client.offset_encoding)
+  client:request("textDocument/documentHighlight", params, function(err, result)
+    if err or not result or #result == 0 or vim.api.nvim_get_current_win() ~= win then
+      return
+    end
+    -- LSP positions are 0-based and counted in the server's encoding; convert to
+    -- {row (1-based), byte column}, as nvim_win_get_cursor uses
+    local function pos(p)
+      local line = vim.api.nvim_buf_get_lines(buf, p.line, p.line + 1, false)[1] or ""
+      return { p.line + 1, vim.str_byteindex(line, client.offset_encoding, p.character, false) }
+    end
+    local function before(a, b)
+      return a[1] < b[1] or (a[1] == b[1] and a[2] < b[2])
+    end
+    local refs = {}
+    for _, h in ipairs(result) do
+      table.insert(refs, { s = pos(h.range.start), e = pos(h.range["end"]) })
+    end
+    table.sort(refs, function(a, b)
+      return before(a.s, b.s)
+    end)
+    local cursor = vim.api.nvim_win_get_cursor(win)
+    -- Going back starts from the beginning of the use the cursor is on, so that
+    -- one is skipped even when the cursor is in its middle
+    local from = cursor
+    for _, r in ipairs(refs) do
+      if not before(cursor, r.s) and before(cursor, r.e) then
+        from = r.s
+      end
+    end
+    local target
+    if dir > 0 then
+      for _, r in ipairs(refs) do
+        if before(cursor, r.s) then
+          target = r
+          break
+        end
+      end
+      target = target or refs[1]
+    else
+      for i = #refs, 1, -1 do
+        if before(refs[i].s, from) then
+          target = refs[i]
+          break
+        end
+      end
+      target = target or refs[#refs]
+    end
+    vim.cmd("normal! m'") -- add to the jumplist
+    vim.api.nvim_win_set_cursor(win, target.s)
+  end, buf)
+end
+
 -- Keys while a language server is attached. Built in since Neovim 0.11:
 --   K = hover, grn = rename, gra = code action, grr = references,
 --   gri = implementation, gO = symbols
@@ -124,6 +185,38 @@ vim.api.nvim_create_autocmd("LspAttach", {
     bmap("gri", fzf.lsp_implementations, "Implementations")
     bmap("<leader>cr", vim.lsp.buf.rename, "Rename")
     bmap("<leader>ca", fzf.lsp_code_actions, "Code action")
+
+    -- Other uses of the symbol under the cursor are highlighted when the cursor
+    -- rests (updatetime); ]] / [[ jump to the next / previous one
+    if client and client:supports_method("textDocument/documentHighlight", ev.buf) then
+      local group = vim.api.nvim_create_augroup("lsp_highlight_" .. ev.buf, { clear = true })
+      vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+        group = group,
+        buffer = ev.buf,
+        callback = vim.lsp.buf.document_highlight,
+      })
+      vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+        group = group,
+        buffer = ev.buf,
+        callback = vim.lsp.buf.clear_references,
+      })
+      vim.api.nvim_create_autocmd("LspDetach", {
+        group = group,
+        buffer = ev.buf,
+        callback = function(detach)
+          if #vim.lsp.get_clients({ bufnr = detach.buf, method = "textDocument/documentHighlight" }) <= 1 then
+            vim.lsp.buf.clear_references()
+            vim.api.nvim_del_augroup_by_id(group)
+          end
+        end,
+      })
+      bmap("]]", function()
+        jump_reference(1)
+      end, "Next use of this symbol")
+      bmap("[[", function()
+        jump_reference(-1)
+      end, "Previous use of this symbol")
+    end
   end,
 })
 
