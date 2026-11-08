@@ -113,7 +113,7 @@ need `npm`, the Python ones `python3`).
 | `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
 | `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
-| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), text objects (mini.ai), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, render-markdown |
+| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, search and replace in all files (grug-far), render-markdown |
 | `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
 | `lua/plugins/lsp.lua` | mason + nvim-lspconfig, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server. **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
@@ -135,13 +135,14 @@ The main ones:
 | `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
 | `gd` / `grr` / `grn` / `gra` / `K` | definition / references / rename / code action / hover |
 | `]]` / `[[` | next / previous use of the symbol under the cursor |
+| `Space r` | search and replace in all files (grug-far; `\r` replaces all, `g?` help) |
 | `Ctrl+Space` / `Ctrl+y` | open completion / accept |
 | `Space c f` / `Space u f` | format / toggle format on save |
 | `Space x x` / `Space x t` | diagnostics / TODOs in trouble |
 | `]h` `[h` / `Space g s` / `Space g p` / `Space g b` | next/prev git hunk / stage / preview / blame |
 | `Space g g` / `Space t` | lazygit / terminal split (`Esc Esc` = normal mode) |
 | `Space q s` / `Space q l` | restore this folder's session / the last session |
-| `Space u u` / `Space u m` | undo tree / toggle markdown rendering |
+| `Space u u` / `Space u m` / `Space u t` | undo tree / toggle markdown rendering / toggle sticky context |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
 
 ## Day to day

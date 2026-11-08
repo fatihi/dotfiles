@@ -10,6 +10,8 @@ pack.add({
   gh("nvim-lua/plenary.nvim"), -- library used by todo-comments and neo-tree
   gh("folke/todo-comments.nvim"),
   gh("MeanderingProgrammer/render-markdown.nvim"),
+  gh("nvim-treesitter/nvim-treesitter-context"),
+  gh("MagicDuck/grug-far.nvim"),
 })
 
 local map = vim.keymap.set
@@ -75,6 +77,11 @@ vim.api.nvim_create_autocmd("FileType", {
     end
   end,
 })
+-- Sticky context: the function/class/if the cursor is in stays at the top of
+-- the window when its first line has scrolled away (up to 3 lines)
+require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
+map("n", "<leader>ut", "<cmd>TSContext toggle<cr>", { desc = "Toggle sticky context" })
+
 -- Text objects: va) vi" etc. get smarter, plus treesitter-based ones:
 --   af/if = function, ac/ic = class, ao/io = if/loop, aa/ia = argument (built in)
 local ai = require("mini.ai")
@@ -160,6 +167,20 @@ map("n", "]t", todo.jump_next, { desc = "Next TODO comment" })
 map("n", "[t", todo.jump_prev, { desc = "Previous TODO comment" })
 map("n", "<leader>ft", "<cmd>TodoFzfLua<cr>", { desc = "TODO comments" })
 map("n", "<leader>xt", "<cmd>Trouble todo toggle<cr>", { desc = "TODO comments (Trouble)" })
+
+-- Search and replace in all files (ripgrep) in a split: type the search, the
+-- replacement and optionally a file filter, the matches update live; then
+-- <localleader>r (\r) replaces everything. You can also edit the result lines
+-- directly and sync them back (\s). g? shows all keys.
+local grug = require("grug-far")
+grug.setup()
+map("n", "<leader>r", function()
+  local ext = vim.bo.buftype == "" and vim.fn.expand("%:e") or ""
+  grug.open({ transient = true, prefills = { filesFilter = ext ~= "" and "*." .. ext or nil } })
+end, { desc = "Replace in files" })
+map("x", "<leader>r", function()
+  grug.with_visual_selection({ transient = true })
+end, { desc = "Replace selection in files" })
 
 -- Markdown: headings, lists, tables, code blocks rendered in normal mode.
 -- The cursor line and insert mode always show the raw text.
