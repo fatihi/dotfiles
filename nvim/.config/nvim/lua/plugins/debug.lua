@@ -2,6 +2,7 @@
 -- variables, watches, call stack, breakpoints, REPL), nvim-dap-python.
 -- Python works out of the box: debugpy is installed by mason (lua/plugins/lsp.lua),
 -- and the program runs with the project's venv / .venv (or $VIRTUAL_ENV) if there is one.
+-- Rust: rustaceanvim (lua/plugins/rust.lua) uses codelldb from mason.
 -- Other languages need their debug adapter added to require("dap").adapters.
 local pack = require("config.pack")
 local gh = pack.gh
@@ -125,3 +126,5 @@ vim.api.nvim_create_autocmd("FileType", {
     bmap("x", "<leader>ds", "debug_selection", "Debug selected code")
   end,
 })
+
+return { dap = dap } -- for lua/plugins/rust.lua

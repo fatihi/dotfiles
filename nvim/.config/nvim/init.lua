@@ -14,3 +14,4 @@ require("plugins.finder")
 require("plugins.lsp")
 require("plugins.git")
 require("plugins.debug")
+require("plugins.rust") -- after lsp and debug

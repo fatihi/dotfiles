@@ -27,6 +27,7 @@ required_pkgs=(
   neovim ripgrep fd gcc tree-sitter xclip                          # editor, its search tools, treesitter parser builds, clipboard
   lazygit                                                          # git UI (also inside neovim)
   npm                                                              # Node.js, for the JSON/YAML language servers mason installs
+  rustup                                                           # Rust toolchain (cargo, rustfmt, clippy, rust-analyzer for Neovim)
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do
@@ -73,6 +74,12 @@ if [[ ! -e "$spell_dir/de.utf-8.spl" ]] && command -v curl >/dev/null; then
     curl -fsSL -o "$spell_dir/$f" "https://ftp.nluug.nl/pub/vim/runtime/spell/$f" ||
       echo "Could not download the Neovim spell file $f" >&2
   done
+fi
+
+# 5b2. rust-analyzer for Neovim (rustaceanvim), from rustup so it matches the toolchain
+if command -v rustup >/dev/null && ! rustup component list --installed 2>/dev/null | grep -q '^rust-analyzer'; then
+  echo "Installing rust-analyzer with rustup"
+  rustup component add rust-analyzer clippy rustfmt || echo "Could not install rust-analyzer" >&2
 fi
 
 # 5c. mise (tool version manager; not in the openSUSE repos), installed to

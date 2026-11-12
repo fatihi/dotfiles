@@ -29,8 +29,9 @@ local servers = {
   "taplo", -- TOML
   "basedpyright", -- Python: types, completion, go to definition
   "ruff", -- Python: lint (as a server) and format (via conform below)
+  -- Rust: rust-analyzer comes from rustup and is started by rustaceanvim (lua/plugins/rust.lua)
 }
-local tools = { "stylua", "shellcheck", "shfmt", "debugpy" } -- formatters, linters, debuggers (lua/plugins/debug.lua)
+local tools = { "stylua", "shellcheck", "shfmt", "debugpy", "codelldb" } -- formatters, linters, debuggers (lua/plugins/debug.lua)
 -- Formatted on save. Not listed: JSON, YAML, TOML, which their language server
 -- formats on <leader>cf only (see "Formatting on save" below)
 local formatters_by_ft = {
@@ -38,6 +39,7 @@ local formatters_by_ft = {
   sh = { "shfmt" }, -- indent from .editorconfig, else the buffer's shiftwidth
   bash = { "shfmt" },
   python = { "ruff_organize_imports", "ruff_format" },
+  rust = { "rustfmt" }, -- from rustup; follows rustfmt.toml and the crate's edition
 }
 local linters_by_ft = {
   -- e.g. markdown = { "markdownlint" }. (shellcheck and ruff need no entry: bashls / the ruff server run them)

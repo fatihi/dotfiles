@@ -105,7 +105,9 @@ cloned on the first start, and their versions are pinned in
 `nvim-pack-lock.json` (committed). Update with `:lua vim.pack.update()`, then
 commit the changed lockfile. Language servers, formatters and the Python debugger are installed by
 mason (`:Mason`) on the first start, also in the background (the JSON/YAML servers
-need `npm`, the Python ones and debugpy `python3`).
+need `npm`, the Python ones and debugpy `python3`). Rust uses the toolchain from
+`rustup` (rust-analyzer, rustfmt, clippy; `install.sh` adds the components) and
+codelldb from mason for debugging.
 
 | File | Contents |
 |------|----------|
@@ -118,9 +120,10 @@ need `npm`, the Python ones and debugpy `python3`).
 | `lua/plugins/ui.lua` | snacks.picker setup (fuzzy finder, also for `vim.ui.select`; hidden files included), Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
 | `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; a language without a parser gets one the first time such a file is opened), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai: function, class, if/loop, argument, function call, tag, whole buffer, number, word part), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits (pinned to v2, which has the WezTerm integration built in), todo-comments, search and replace in all files (grug-far), render-markdown |
 | `lua/plugins/finder.lua` | picker keys (`Space f ...`), oil (in a popup on `-`), neo-tree (closed before a session is saved) |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). Rust: rustfmt on save (rust-analyzer: see `rust.lua`). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, git pickers (changed files, commits), lazygit in a floating window |
-| `lua/plugins/debug.lua` | debugger: nvim-dap, nvim-dap-view (panel with variables, watches, call stack, breakpoints, REPL; opens while debugging, values shown next to the code), nvim-dap-python (debugpy from mason; runs with the project's `venv`/`.venv`; debug the test under the cursor with pytest or unittest). Set up on the first debug key, so it costs nothing at startup. **Other languages:** add their adapter to `require("dap").adapters` |
+| `lua/plugins/debug.lua` | debugger: nvim-dap, nvim-dap-view (panel with variables, watches, call stack, breakpoints, REPL; opens while debugging, values shown next to the code), nvim-dap-python (debugpy from mason; runs with the project's `venv`/`.venv`; debug the test under the cursor with pytest or unittest). Set up on the first debug key, so it costs nothing at startup. Rust: codelldb via rustaceanvim. **Other languages:** add their adapter to `require("dap").adapters` |
+| `lua/plugins/rust.lua` | Rust: rustaceanvim (rust-analyzer from rustup, clippy lints on save, all cargo features; `K` hover with actions, `Space c a` grouped code actions, `Space c e` / `Space c E` explain the error / show it as cargo does, `Space c m` expand macro, `Space c R` / `Space c T` / `Space c l` run / test / run what's under the cursor, `Space d m` / `Space d M` debug what's under the cursor / pick, `Space c o` Cargo.toml, `Space c p` parent module, `Space c D` docs.rs), crates.nvim in `Cargo.toml` (outdated/yanked versions, completion of crates, versions, features; `Space c a` to update) |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
 Outside `nvim/`: `awesome/.config/awesome/.luarc.json` tells lua_ls about awesome's globals and library, and the repo's `.editorconfig` sets 2-space indent for the shell scripts (Neovim and shfmt both read it).
@@ -154,7 +157,7 @@ The main ones:
 | `n` / `N` | next match down / up, also after `?` |
 | `Space u u` / `Space u m` / `Space u t` / `Space u s` | undo tree / toggle markdown rendering / toggle sticky context / toggle spell check |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
-| `Space d b` / `Space d c` / `Space d m` | breakpoint / start debugging or continue / debug the test under the cursor (Python) |
+| `Space d b` / `Space d c` / `Space d m` | breakpoint / start debugging or continue / debug the test under the cursor (Python, Rust) |
 | `F5` / `F9` / `F10` / `F11` / `Shift+F11` | continue / breakpoint / step over / into / out |
 | `Space d e` / `Space d w` / `Space d u` / `Space d t` | value of the expression under the cursor / watch it / toggle the debug panel / stop |
 
