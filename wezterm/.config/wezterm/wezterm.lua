@@ -58,7 +58,7 @@ wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
 end)
 
 -- Window
-config.window_padding = { left = 6, right = 6, top = 4, bottom = 4 }
+config.window_padding = { left = 6, right = 6, top = 4, bottom = 0 }
 -- Ctrl+= / Ctrl+- change the text size only, not the window size
 config.adjust_window_size_when_changing_font_size = false
 -- Dim panes that don't have focus
