@@ -26,12 +26,13 @@ config.tab_bar_at_bottom = true
 config.tab_max_width = 25
 
 -- Mode indicator on the right of the tab bar: " LEADER " while Ctrl+a is
--- waiting for the next key, " COPY " / " SEARCH " in copy and search mode.
+-- waiting for the next key, " COPY " / " SEARCH " / " RESIZE " in those modes.
 -- Checked every 500 ms so it shows up well within the 2 s leader timeout.
 config.status_update_interval = 500
 local modes = {  -- Dracula colours
   copy_mode   = { text = " COPY ",   color = "#f1fa8c" },  -- yellow
   search_mode = { text = " SEARCH ", color = "#50fa7b" },  -- green
+  resize_pane = { text = " RESIZE ", color = "#ffb86c" },  -- orange
 }
 wezterm.on("update-status", function(window, _)
   local mode = window:leader_is_active() and { text = " LEADER ", color = "#ff79c6" }  -- pink
@@ -91,6 +92,11 @@ config.keys = {
   { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
   { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
   { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
+  -- r = resize mode: h/j/k/l resize the current pane (Shift = bigger steps)
+  -- until Esc, Enter or q; see config.key_tables below
+  { key = "r", mods = "LEADER", action = act.ActivateKeyTable({
+    name = "resize_pane", one_shot = false,
+  }) },
   -- Zoom the current pane to the full window and back
   { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
   -- Close the current pane (asks if something other than a shell runs in it)
@@ -132,10 +138,35 @@ config.mouse_bindings = {
   { event = { Down = { streak = 1, button = "Left" } }, mods = "CTRL", action = act.Nop },
 }
 
+-- Direction keys, as a list: loops below use ipairs, not pairs, because the
+-- order of pairs() is not fixed. wezterm numbers each action_callback in the
+-- order it is created and loads this file more than once, so a changing order
+-- sent keys to the wrong callback (Alt+h resized downwards).
+local directions = {
+  { key = "h", arrow = "LeftArrow", dir = "Left" },
+  { key = "j", arrow = "DownArrow", dir = "Down" },
+  { key = "k", arrow = "UpArrow", dir = "Up" },
+  { key = "l", arrow = "RightArrow", dir = "Right" },
+}
+
 -- Shift+h/j/k/l: resize the current pane
-for key, dir in pairs({ H = "Left", J = "Down", K = "Up", L = "Right" }) do
-  table.insert(config.keys, { key = key, mods = "LEADER", action = act.AdjustPaneSize({ dir, 5 }) })
+for _, d in ipairs(directions) do
+  table.insert(config.keys, { key = d.key:upper(), mods = "LEADER", action = act.AdjustPaneSize({ d.dir, 5 }) })
 end
+
+-- Resize mode (Ctrl+a r): stays active until Esc/Enter/q (not "until_unknown":
+-- pressing Shift alone counts as an unknown key and would end the mode)
+local resize_keys = {
+  { key = "Escape", action = act.PopKeyTable },
+  { key = "Enter", action = act.PopKeyTable },
+  { key = "q", action = act.PopKeyTable },
+}
+for _, d in ipairs(directions) do
+  table.insert(resize_keys, { key = d.key, action = act.AdjustPaneSize({ d.dir, 1 }) })
+  table.insert(resize_keys, { key = d.arrow, action = act.AdjustPaneSize({ d.dir, 1 }) })
+  table.insert(resize_keys, { key = d.key:upper(), action = act.AdjustPaneSize({ d.dir, 5 }) })
+end
+config.key_tables = { resize_pane = resize_keys }
 
 -- Without the leader: Ctrl+h/j/k/l = move to the pane in that direction,
 -- Alt+h/j/k/l = resize the pane. When Neovim runs in the pane, the key goes to
@@ -144,11 +175,13 @@ end
 local function is_nvim(pane)
   return pane:get_user_vars().IS_NVIM == "true"
 end
-for key, dir in pairs({ h = "Left", j = "Down", k = "Up", l = "Right" }) do
-  for mods, action in pairs({
-    CTRL = act.ActivatePaneDirection(dir),
-    ALT = act.AdjustPaneSize({ dir, 3 }),
+for _, d in ipairs(directions) do
+  local key = d.key
+  for _, m in ipairs({
+    { mods = "CTRL", action = act.ActivatePaneDirection(d.dir) },
+    { mods = "ALT", action = act.AdjustPaneSize({ d.dir, 3 }) },
   }) do
+    local mods, action = m.mods, m.action
     table.insert(config.keys, {
       key = key,
       mods = mods,
