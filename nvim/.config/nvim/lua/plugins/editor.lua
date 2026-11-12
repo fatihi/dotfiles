@@ -6,7 +6,9 @@ pack.add({
   { src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
   { src = gh("nvim-treesitter/nvim-treesitter-textobjects"), version = "main" },
   gh("folke/flash.nvim"),
-  gh("mrjones2014/smart-splits.nvim"),
+  -- v2: v3 moved the WezTerm support into a separate, still unstable backend plugin.
+  -- v2 detects WezTerm by itself and sets the IS_NVIM user var that wezterm.lua checks.
+  { src = gh("mrjones2014/smart-splits.nvim"), version = "v2.1.1-final" },
   gh("nvim-lua/plenary.nvim"), -- library used by todo-comments and neo-tree
   gh("folke/todo-comments.nvim"),
   gh("MeanderingProgrammer/render-markdown.nvim"),
@@ -100,7 +102,7 @@ vim.api.nvim_create_autocmd("FileType", {
         installable[l] = true
       end
     end
-    if not installable[lang] then -- e.g. "oil", "fzf", "bigfile"
+    if not installable[lang] then -- e.g. "oil", "bigfile"
       return
     end
     ts.install(lang):await(function(err)
@@ -217,7 +219,7 @@ map("c", "<C-s>", flash.toggle, { desc = "Toggle flash in / search" })
 -- Ctrl+h/j/k/l: move between splits, and on into WezTerm panes at the edge
 -- Alt+h/j/k/l: resize the split (or the WezTerm pane)
 local ss = require("smart-splits")
-ss.setup({ move = { at_edge = "stop" } })
+ss.setup({ at_edge = "stop" })
 map("n", "<C-h>", ss.move_cursor_left, { desc = "Go to left split/pane" })
 map("n", "<C-j>", ss.move_cursor_down, { desc = "Go to lower split/pane" })
 map("n", "<C-k>", ss.move_cursor_up, { desc = "Go to upper split/pane" })
@@ -232,7 +234,9 @@ local todo = require("todo-comments")
 todo.setup()
 map("n", "]t", todo.jump_next, { desc = "Next TODO comment" })
 map("n", "[t", todo.jump_prev, { desc = "Previous TODO comment" })
-map("n", "<leader>ft", "<cmd>TodoFzfLua<cr>", { desc = "TODO comments" })
+map("n", "<leader>ft", function()
+  Snacks.picker.todo_comments()
+end, { desc = "TODO comments" })
 map("n", "<leader>xt", "<cmd>Trouble todo toggle<cr>", { desc = "TODO comments (Trouble)" })
 
 -- Search and replace in all files (ripgrep) in a split: type the search, the

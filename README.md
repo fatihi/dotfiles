@@ -27,7 +27,7 @@ sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
                     gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
-                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts chafa npm
+                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -103,9 +103,9 @@ lid close. The monitor turns off after 10 minutes.
 Needs Neovim 0.12+. Plugins are managed by the built-in `vim.pack`: they are
 cloned on the first start, and their versions are pinned in
 `nvim-pack-lock.json` (committed). Update with `:lua vim.pack.update()`, then
-commit the changed lockfile. Language servers and formatters are installed by
+commit the changed lockfile. Language servers, formatters and the Python debugger are installed by
 mason (`:Mason`) on the first start, also in the background (the JSON/YAML servers
-need `npm`, the Python ones `python3`).
+need `npm`, the Python ones and debugpy `python3`).
 
 | File | Contents |
 |------|----------|
@@ -115,11 +115,12 @@ need `npm`, the Python ones `python3`).
 | `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize (in every tab), `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown, `o`/`O` on a comment line don't continue the comment |
 | `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
-| `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
-| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; a language without a parser gets one the first time such a file is opened), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai: function, class, if/loop, argument, function call, tag, whole buffer, number, word part), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, search and replace in all files (grug-far), render-markdown |
-| `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
+| `lua/plugins/ui.lua` | snacks.picker setup (fuzzy finder, also for `vim.ui.select`; hidden files included), Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
+| `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; a language without a parser gets one the first time such a file is opened), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai: function, class, if/loop, argument, function call, tag, whole buffer, number, word part), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits (pinned to v2, which has the WezTerm integration built in), todo-comments, search and replace in all files (grug-far), render-markdown |
+| `lua/plugins/finder.lua` | picker keys (`Space f ...`), oil (in a popup on `-`), neo-tree (closed before a session is saved) |
 | `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
-| `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
+| `lua/plugins/git.lua` | gitsigns, git pickers (changed files, commits), lazygit in a floating window |
+| `lua/plugins/debug.lua` | debugger: nvim-dap, nvim-dap-view (panel with variables, watches, call stack, breakpoints, REPL; opens while debugging, values shown next to the code), nvim-dap-python (debugpy from mason; runs with the project's `venv`/`.venv`; debug the test under the cursor with pytest or unittest). Set up on the first debug key, so it costs nothing at startup. **Other languages:** add their adapter to `require("dap").adapters` |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
 Outside `nvim/`: `awesome/.config/awesome/.luarc.json` tells lua_ls about awesome's globals and library, and the repo's `.editorconfig` sets 2-space indent for the shell scripts (Neovim and shfmt both read it).
@@ -130,7 +131,8 @@ The main ones:
 | Key | Action |
 |-----|--------|
 | `Space Space` / `Space f g` / `Space f b` / `Space f r` | find files / grep / buffers / recent files |
-| `-` / `Space e` | oil (parent folder as a buffer, `:w` applies edits) / neo-tree sidebar |
+| in a picker | type to filter, `Ctrl+j/k` move; `Esc` = browse with `j`/`k`, `gg`/`G` (`i` types again, `Esc`/`q` close); `Ctrl+s`/`Ctrl+v` open in a split, `Ctrl+q` to quickfix, `?` all keys |
+| `-` / `Space e` | oil in a popup (parent folder as a buffer, `:w` applies edits, `-` goes up, `q` closes) / neo-tree sidebar |
 | `s` / `S` | flash jump / select a treesitter node |
 | `]f` / `[f` | next / previous function |
 | `gsa` / `gsd` / `gsr` | add / delete / replace surrounding (e.g. `gsaiw"`) |
@@ -152,6 +154,9 @@ The main ones:
 | `n` / `N` | next match down / up, also after `?` |
 | `Space u u` / `Space u m` / `Space u t` / `Space u s` | undo tree / toggle markdown rendering / toggle sticky context / toggle spell check |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
+| `Space d b` / `Space d c` / `Space d m` | breakpoint / start debugging or continue / debug the test under the cursor (Python) |
+| `F5` / `F9` / `F10` / `F11` / `Shift+F11` | continue / breakpoint / step over / into / out |
+| `Space d e` / `Space d w` / `Space d u` / `Space d t` | value of the expression under the cursor / watch it / toggle the debug panel / stop |
 
 ## Day to day
 

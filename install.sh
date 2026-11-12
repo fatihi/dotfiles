@@ -25,7 +25,6 @@ required_pkgs=(
   gtk3-metatheme-dracula gtk4-metatheme-dracula                    # GTK themes
   fzf zoxide                                                       # fuzzy finder, smart cd (bash)
   neovim ripgrep fd gcc tree-sitter xclip                          # editor, its search tools, treesitter parser builds, clipboard
-  chafa                                                            # image previews in fzf-lua
   lazygit                                                          # git UI (also inside neovim)
   npm                                                              # Node.js, for the JSON/YAML language servers mason installs
 )

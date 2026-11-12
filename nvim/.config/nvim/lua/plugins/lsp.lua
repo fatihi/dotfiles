@@ -30,7 +30,7 @@ local servers = {
   "basedpyright", -- Python: types, completion, go to definition
   "ruff", -- Python: lint (as a server) and format (via conform below)
 }
-local tools = { "stylua", "shellcheck", "shfmt" } -- formatters and linters
+local tools = { "stylua", "shellcheck", "shfmt", "debugpy" } -- formatters, linters, debuggers (lua/plugins/debug.lua)
 -- Formatted on save. Not listed: JSON, YAML, TOML, which their language server
 -- formats on <leader>cf only (see "Formatting on save" below)
 local formatters_by_ft = {
@@ -177,17 +177,22 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client and client.name == "ruff" then
       client.server_capabilities.hoverProvider = false -- K shows basedpyright's hover instead
     end
-    local fzf = require("fzf-lua")
     local function bmap(lhs, rhs, desc)
       map("n", lhs, rhs, { buffer = ev.buf, desc = desc })
     end
-    bmap("gd", fzf.lsp_definitions, "Go to definition")
+    -- In the picker (snacks); a single result is jumped to directly
+    local function pick(source)
+      return function()
+        Snacks.picker.pick(source)
+      end
+    end
+    bmap("gd", pick("lsp_definitions"), "Go to definition")
     bmap("gD", vim.lsp.buf.declaration, "Go to declaration")
-    bmap("gy", fzf.lsp_typedefs, "Go to type definition")
-    bmap("grr", fzf.lsp_references, "References")
-    bmap("gri", fzf.lsp_implementations, "Implementations")
+    bmap("gy", pick("lsp_type_definitions"), "Go to type definition")
+    bmap("grr", pick("lsp_references"), "References")
+    bmap("gri", pick("lsp_implementations"), "Implementations")
     bmap("<leader>cr", vim.lsp.buf.rename, "Rename")
-    bmap("<leader>ca", fzf.lsp_code_actions, "Code action")
+    bmap("<leader>ca", vim.lsp.buf.code_action, "Code action") -- the menu is a snacks picker (vim.ui.select)
 
     -- Other uses of the symbol under the cursor are highlighted when the cursor
     -- rests (updatetime); ]] / [[ jump to the next / previous one

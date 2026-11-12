@@ -1,4 +1,4 @@
--- Git: changed lines in the sign column (gitsigns) and lazygit in a floating window
+-- Git: changed lines in the sign column (gitsigns), git pickers and lazygit in a floating window
 local pack = require("config.pack")
 
 pack.add({ pack.gh("lewis6991/gitsigns.nvim") })
@@ -37,11 +37,16 @@ require("gitsigns").setup({
   end,
 })
 
--- Git pickers (fzf-lua)
-local fzf = require("fzf-lua")
-map("n", "<leader>gf", fzf.git_status, { desc = "Changed files" })
-map("n", "<leader>gc", fzf.git_commits, { desc = "Commits" })
-map("n", "<leader>gC", fzf.git_bcommits, { desc = "Commits of this file" })
+-- Git pickers (snacks.picker)
+map("n", "<leader>gf", function()
+  Snacks.picker.git_status()
+end, { desc = "Changed files" })
+map("n", "<leader>gc", function()
+  Snacks.picker.git_log()
+end, { desc = "Commits" })
+map("n", "<leader>gC", function()
+  Snacks.picker.git_log_file()
+end, { desc = "Commits of this file" })
 
 -- Lazygit in a floating terminal (lua/config/terminal.lua). Opening a file from
 -- lazygit (e) closes it and opens the file here (os.editPreset in ~/.config/lazygit/config.yml).

@@ -76,34 +76,28 @@ end
 vim.keymap.set("n", "<leader>t", M.toggle_shell, { desc = "Terminal" })
 
 -- Every other terminal (the shell split, :terminal) gets the keys below, except
--- fzf-lua's and the floating ones, where fzf/lazygit need Esc and Ctrl+j/k
+-- the floating ones, where lazygit needs Esc and Ctrl+j/k
 vim.api.nvim_create_autocmd("TermOpen", {
   group = vim.api.nvim_create_augroup("terminal", { clear = true }),
   callback = function(ev)
-    vim.schedule(function() -- fzf-lua sets its filetype after the terminal opened
-      if
-        not vim.api.nvim_buf_is_valid(ev.buf)
-        or vim.b[ev.buf].term_keys == false
-        or vim.bo[ev.buf].filetype == "fzf"
-      then
-        return
-      end
-      local win = vim.fn.bufwinid(ev.buf)
-      if win ~= -1 then
-        vim.wo[win].number = false
-        vim.wo[win].relativenumber = false
-        vim.wo[win].signcolumn = "no"
-      end
-      local function tmap(lhs, rhs, desc)
-        vim.keymap.set("t", lhs, rhs, { buffer = ev.buf, desc = desc })
-      end
-      local ss = require("smart-splits")
-      tmap("<Esc><Esc>", "<C-\\><C-n>", "Leave terminal mode")
-      tmap("<C-h>", ss.move_cursor_left, "Go to left split/pane")
-      tmap("<C-j>", ss.move_cursor_down, "Go to lower split/pane")
-      tmap("<C-k>", ss.move_cursor_up, "Go to upper split/pane")
-      tmap("<C-l>", ss.move_cursor_right, "Go to right split/pane")
-    end)
+    if vim.b[ev.buf].term_keys == false then
+      return
+    end
+    local win = vim.fn.bufwinid(ev.buf)
+    if win ~= -1 then
+      vim.wo[win].number = false
+      vim.wo[win].relativenumber = false
+      vim.wo[win].signcolumn = "no"
+    end
+    local function tmap(lhs, rhs, desc)
+      vim.keymap.set("t", lhs, rhs, { buffer = ev.buf, desc = desc })
+    end
+    local ss = require("smart-splits")
+    tmap("<Esc><Esc>", "<C-\\><C-n>", "Leave terminal mode")
+    tmap("<C-h>", ss.move_cursor_left, "Go to left split/pane")
+    tmap("<C-j>", ss.move_cursor_down, "Go to lower split/pane")
+    tmap("<C-k>", ss.move_cursor_up, "Go to upper split/pane")
+    tmap("<C-l>", ss.move_cursor_right, "Go to right split/pane")
   end,
 })
 

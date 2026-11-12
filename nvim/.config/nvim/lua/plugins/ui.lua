@@ -4,6 +4,7 @@ local gh = pack.gh
 
 pack.add({
   gh("nvim-mini/mini.nvim"), -- collection of small modules (icons, starter, pairs, ...)
+  gh("folke/snacks.nvim"), -- another collection; only its picker (fuzzy finder) is used
   gh("Mofiqul/dracula.nvim"),
   gh("nvim-lualine/lualine.nvim"),
   gh("folke/which-key.nvim"),
@@ -11,9 +12,27 @@ pack.add({
   gh("folke/persistence.nvim"), -- here because the start screen offers to restore a session
 })
 
--- Icons (also stands in for nvim-web-devicons, which lualine/neo-tree/fzf-lua look for)
+-- Icons (also stands in for nvim-web-devicons, which lualine/neo-tree look for)
 require("mini.icons").setup()
 MiniIcons.mock_nvim_web_devicons()
+
+-- Fuzzy finder (snacks.picker), also for vim.ui.select (code actions, ...).
+-- Keys in lua/plugins/finder.lua. Set up here, before todo-comments
+-- (lua/plugins/editor.lua) starts, which adds its TODO picker to it.
+-- In the search field: type to filter, Ctrl+j/k or Ctrl+n/p move. Esc switches
+-- to browsing: j/k, gg/G, Ctrl+d/u; i goes back to typing; Esc or q closes.
+-- Enter opens, Ctrl+s / Ctrl+v in a split, Ctrl+q sends the list to quickfix,
+-- Alt+h / Alt+i show hidden / git-ignored files. ? lists all keys.
+require("snacks").setup({
+  picker = {
+    sources = {
+      -- hidden files (.bashrc, ...) too; .git and git-ignored files stay out
+      files = { hidden = true },
+      grep = { hidden = true },
+      grep_word = { hidden = true },
+    },
+  },
+})
 
 -- Colours: Dracula, like the rest of the desktop
 require("dracula").setup({ italic_comment = true })
@@ -31,7 +50,7 @@ require("lualine").setup({
     -- lsp_status: attached language servers, with a spinner while they're busy (e.g. indexing)
     lualine_x = { "lsp_status", "encoding", "fileformat", "filetype" },
   },
-  extensions = { "oil", "neo-tree", "trouble", "fzf", "quickfix" },
+  extensions = { "oil", "neo-tree", "trouble", "quickfix" },
 })
 
 -- Key hints: press <Space> (or any prefix like g, [, ]) and wait
@@ -41,6 +60,7 @@ wk.setup({
   spec = {
     { "<leader>b", group = "buffer" },
     { "<leader>c", group = "code" },
+    { "<leader>d", group = "debug" },
     { "<leader>f", group = "find" },
     { "<leader>g", group = "git" },
     { "<leader>q", group = "session/quit" },
@@ -57,7 +77,20 @@ end, { desc = "Keys for this buffer" })
 require("ibl").setup({
   indent = { char = "│" },
   scope = { show_start = false, show_end = false },
-  exclude = { filetypes = { "ministarter", "help", "trouble", "neo-tree", "oil", "grug-far", "bigfile" } },
+  exclude = {
+    filetypes = {
+      "ministarter",
+      "help",
+      "trouble",
+      "neo-tree",
+      "oil",
+      "grug-far",
+      "bigfile",
+      "dap-view",
+      "dap-view-term",
+      "dap-repl",
+    },
+  },
 })
 
 -- Colour previews: #rrggbb is shown in its own colour
@@ -105,9 +138,21 @@ starter.setup({
         persistence.load({ last = true })
       end,
     },
-    { section = "Actions", name = "Find file", action = "FzfLua files" },
-    { section = "Actions", name = "Grep text", action = "FzfLua live_grep" },
-    { section = "Actions", name = "Explorer", action = "Oil" },
+    {
+      section = "Actions",
+      name = "Find file",
+      action = function()
+        Snacks.picker.files()
+      end,
+    },
+    {
+      section = "Actions",
+      name = "Grep text",
+      action = function()
+        Snacks.picker.grep()
+      end,
+    },
+    { section = "Actions", name = "Explorer", action = "Oil --float" },
     { section = "Actions", name = "Lazygit", action = "Lazygit" },
     { section = "Actions", name = "New file", action = "enew" },
     { section = "Actions", name = "Quit", action = "qall" },
