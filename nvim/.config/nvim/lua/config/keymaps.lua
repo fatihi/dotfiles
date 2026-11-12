@@ -47,6 +47,7 @@ map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
 
 -- Toggles
 map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle line wrap" })
+map("n", "<leader>us", "<cmd>setlocal spell!<cr>", { desc = "Toggle spell check" })
 map("n", "<leader>ud", function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle diagnostics" })

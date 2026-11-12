@@ -83,11 +83,19 @@ require("lazydev").setup({
   },
 })
 
--- Diagnostics: text at the end of the line, worst first, icons in the sign column
+-- Diagnostics: text at the end of the line, worst first, icons in the sign
+-- column. ]d / [d open the full message in a popup after jumping.
 vim.diagnostic.config({
   severity_sort = true,
   virtual_text = true,
   float = { source = "if_many" },
+  jump = {
+    on_jump = function(diagnostic, buf)
+      if diagnostic then
+        vim.diagnostic.open_float({ bufnr = buf, scope = "cursor", focus = false })
+      end
+    end,
+  },
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = "󰅚 ",

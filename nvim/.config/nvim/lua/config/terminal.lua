@@ -81,7 +81,11 @@ vim.api.nvim_create_autocmd("TermOpen", {
   group = vim.api.nvim_create_augroup("terminal", { clear = true }),
   callback = function(ev)
     vim.schedule(function() -- fzf-lua sets its filetype after the terminal opened
-      if not vim.api.nvim_buf_is_valid(ev.buf) or vim.b[ev.buf].term_keys == false or vim.bo[ev.buf].filetype == "fzf" then
+      if
+        not vim.api.nvim_buf_is_valid(ev.buf)
+        or vim.b[ev.buf].term_keys == false
+        or vim.bo[ev.buf].filetype == "fzf"
+      then
         return
       end
       local win = vim.fn.bufwinid(ev.buf)

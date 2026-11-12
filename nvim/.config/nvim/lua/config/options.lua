@@ -56,6 +56,7 @@ o.splitkeep = "screen" -- text doesn't scroll when a split opens or closes
 -- it's English or German. The German dictionary is downloaded by install.sh
 -- (or Neovim offers to download it the first time it's needed).
 o.spelllang = { "en", "de" }
+o.spelloptions = "camel" -- in code (Space u s), myVariableName is checked as my + Variable + Name
 
 -- Ctrl+o / Ctrl+i return to the same scroll position, not just the same line
 -- ("clean" is the default: forget jumps into deleted buffers)
@@ -72,6 +73,11 @@ o.foldlevel = 99
 o.winborder = "rounded" -- borders around floating windows (hover, diagnostics, ...)
 o.laststatus = 3 -- one statusline for all windows
 o.showmode = false -- lualine shows the mode
+
+-- New message and command-line UI (experimental in 0.12): no "Press ENTER"
+-- prompts, the command line is highlighted as you type, and g< shows earlier
+-- messages in a scrollable window (q closes it)
+require("vim._core.ui2").enable()
 o.sessionoptions = { "buffers", "curdir", "folds", "help", "tabpages", "winsize" } -- no empty or terminal windows
 o.confirm = true -- ask to save instead of failing on :q with changes
 o.updatetime = 250 -- faster CursorHold (gitsigns, LSP highlights)

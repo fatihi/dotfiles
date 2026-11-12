@@ -110,15 +110,15 @@ need `npm`, the Python ones `python3`).
 | File | Contents |
 |------|----------|
 | `init.lua` | loads the modules below in order |
-| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows, Ctrl+o/Ctrl+i keep the scroll position (`jumpoptions=view`), spell checking in English and German (`de` dictionary downloaded by `install.sh`) |
-| `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree, `j`/`k` by screen line in wrapped text, `n`/`N` always down/up, undo steps at `,` `.` `;` in insert mode, `gco`/`gcO`, splits, restart |
-| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize, `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown, `o`/`O` on a comment line don't continue the comment |
+| `lua/config/options.lua` | leader = Space, relative numbers, `scrolloff=8`, persistent undo, system clipboard, smart-case search, 4-space indent, treesitter folds, `splitkeep=screen`, block selections past line ends, smooth scrolling of wrapped lines, sessions without empty/terminal windows, Ctrl+o/Ctrl+i keep the scroll position (`jumpoptions=view`), spell checking in English and German (`de` dictionary downloaded by `install.sh`; camelCase words checked by part), new message/command-line UI (`ui2`: no "Press ENTER" prompts, `g<` shows earlier messages) |
+| `lua/config/keymaps.lua` | general keys and toggles, built-in undo tree, `j`/`k` by screen line in wrapped text, `n`/`N` always down/up, undo steps at `,` `.` `;` in insert mode, `gco`/`gcO`, splits, restart, spell check toggle |
+| `lua/config/autocmds.lua` | highlight on yank, reopen at last position, reload files changed outside, equal splits on resize (in every tab), `q` closes help/quickfix/man/checkhealth, wrap + spell check in git commits and markdown, `o`/`O` on a comment line don't continue the comment |
 | `lua/config/terminal.lua` | shell split toggled with `Space t`, floating terminals (lazygit; they follow terminal resizes), `Esc Esc` and `Ctrl+h/j/k/l` inside the shell split / `:terminal` |
 | `lua/config/pack.lua` | `vim.pack` helpers and post-update build steps |
 | `lua/plugins/ui.lua` | Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
 | `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; a language without a parser gets one the first time such a file is opened), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai: function, class, if/loop, argument, function call, tag, whole buffer, number, word part), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits, todo-comments, search and replace in all files (grug-far), render-markdown |
 | `lua/plugins/finder.lua` | fzf-lua (uses the real fzf and `FZF_DEFAULT_OPTS`; image previews via chafa), oil, neo-tree (closed before a session is saved) |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, fzf-lua git pickers, lazygit in a floating window |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
@@ -139,6 +139,7 @@ The main ones:
 | `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
 | `gd` / `grr` / `grn` / `gra` / `K` | definition / references / rename / code action / hover |
 | `]]` / `[[` | next / previous use of the symbol under the cursor |
+| `]d` / `[d` | next / previous diagnostic (message in a popup) |
 | `Space r` | search and replace in all files (grug-far; `\r` replaces all, `g?` help) |
 | `Ctrl+Space` / `Ctrl+y` | open completion / accept |
 | `Space c f` / `Space u f` | format / toggle format on save |
@@ -149,7 +150,7 @@ The main ones:
 | `gco` / `gcO` | new comment line below / above (`o` on a comment line starts a plain line) |
 | `Space -` / `Space \|` | split below / right |
 | `n` / `N` | next match down / up, also after `?` |
-| `Space u u` / `Space u m` / `Space u t` | undo tree / toggle markdown rendering / toggle sticky context |
+| `Space u u` / `Space u m` / `Space u t` / `Space u s` | undo tree / toggle markdown rendering / toggle sticky context / toggle spell check |
 | `Space b d` / `Space b o` | delete buffer (keeps the split) / delete all other buffers |
 
 ## Day to day

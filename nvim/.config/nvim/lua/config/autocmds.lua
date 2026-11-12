@@ -21,13 +21,22 @@ autocmd("BufReadPost", {
   end,
 })
 
--- Keep splits equal when the terminal is resized (in every tab, then back to this one)
+-- Keep splits equal when the terminal is resized, in every tab. Runs in one
+-- normal (non-floating) window of each tab without switching to it, so g<Tab>
+-- still knows the previous tab and no BufEnter/WinEnter autocmds fire.
 autocmd("VimResized", {
   group = group,
   callback = function()
-    local tab = vim.fn.tabpagenr()
-    vim.cmd("tabdo wincmd =")
-    vim.cmd("tabnext " .. tab)
+    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+        if vim.api.nvim_win_get_config(win).relative == "" then
+          vim.api.nvim_win_call(win, function()
+            vim.cmd("wincmd =")
+          end)
+          break
+        end
+      end
+    end
   end,
 })
 
