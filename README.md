@@ -28,7 +28,8 @@ sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
                     gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
-                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm
+                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm rustup \
+                    docker docker-compose docker-buildx
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
@@ -42,7 +43,10 @@ the running X session. Finally it copies everything under `system/` to the same 
 (with sudo, only files that changed; the first time, the original is kept as
 `*.orig`). If `mise` is missing it installs it to `~/.local/bin/mise` with the
 official installer (`curl https://mise.run | sh`; it isn't in the openSUSE repos),
-and it downloads Neovim's German spell files. It is safe to re-run.
+and it downloads Neovim's German spell files. If `docker` is installed it enables
+the daemon (`systemctl enable --now docker`) and adds you to the `docker` group so
+`docker` works without sudo (log out and back in once; the group is root-equivalent).
+It is safe to re-run.
 
 Theme: Dracula everywhere (awesome, wezterm, Neovim, lazygit, GTK 3/4). GTK 4 / libadwaita apps
 ignore theme names, so `gtk.css` imports the Dracula CSS directly.

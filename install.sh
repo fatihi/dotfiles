@@ -28,6 +28,7 @@ required_pkgs=(
   lazygit                                                          # git UI (also inside neovim)
   npm                                                              # Node.js, for the JSON/YAML language servers mason installs
   rustup                                                           # Rust toolchain (cargo, rustfmt, clippy, rust-analyzer for Neovim)
+  docker docker-compose docker-buildx                              # containers (daemon enabled and user added to the docker group in step 5d)
 )
 missing_pkgs=()
 for p in "${required_pkgs[@]}"; do
@@ -87,6 +88,19 @@ fi
 if ! command -v mise >/dev/null && [[ ! -x "$HOME/.local/bin/mise" ]] && command -v curl >/dev/null; then
   echo "Installing mise to ~/.local/bin/mise"
   curl -fsSL https://mise.run | sh || echo "Could not install mise" >&2
+fi
+
+# 5d. Docker: start the daemon at boot and let the user run docker without sudo.
+#     Membership in the docker group is root-equivalent; it applies after logging in again.
+if rpm -q docker >/dev/null 2>&1; then
+  if ! systemctl is-enabled --quiet docker; then
+    echo "Enabling the Docker daemon (needs sudo)"
+    sudo systemctl enable --now docker
+  fi
+  if ! id -nG "$USER" | tr ' ' '\n' | grep -qx docker; then
+    echo "Adding $USER to the docker group (needs sudo; log out and back in afterwards)"
+    sudo usermod -aG docker "$USER"
+  fi
 fi
 
 # 6. Dark mode and cursor for apps that read dconf instead of files (libadwaita, Firefox)
