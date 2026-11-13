@@ -89,10 +89,17 @@ if ! command -v mise >/dev/null && [[ ! -x "$HOME/.local/bin/mise" ]] && command
   curl -fsSL https://mise.run | sh || echo "Could not install mise" >&2
 fi
 
-# 6. Dark mode for apps that read dconf instead of files (libadwaita, Firefox)
+# 6. Dark mode and cursor for apps that read dconf instead of files (libadwaita, Firefox)
 if command -v gsettings >/dev/null; then
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
   gsettings set org.gnome.desktop.interface gtk-theme 'dracula-gtk-theme'
+  gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
+  gsettings set org.gnome.desktop.interface cursor-size 24
+fi
+
+# 6b. Cursor theme for the running X session (normally loaded at login)
+if [[ -n "${DISPLAY:-}" ]] && command -v xrdb >/dev/null; then
+  xrdb -merge "$HOME/.Xresources"
 fi
 
 # 7. System files outside $HOME: system/etc/foo is copied to /etc/foo.

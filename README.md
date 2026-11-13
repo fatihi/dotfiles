@@ -13,7 +13,8 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `nvim` | `.config/nvim/` (see [Neovim](#neovim) below) |
 | `mise` | `.config/mise/config.toml` (global tool versions, empty for now; projects pin their own in `mise.toml`) |
 | `lazygit` | `.config/lazygit/config.yml` (Dracula colours; `e` opens the file in the surrounding Neovim) |
-| `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode) |
+| `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode, Adwaita cursor at 24 px) |
+| `x11` | `.Xresources` (`Xcursor.theme`/`Xcursor.size`, loaded at login), `.icons/default/index.theme` (inherits Adwaita) — same cursor and size in every app; without them Firefox/GTK picked Adwaita at screen height / 48 = 30 px while the rest used X's small built-in cursor |
 | `rofi`  | `.config/rofi/config.rasi`, `.config/rofi/themes/dracula.rasi` (app launcher) |
 | `flameshot` | `.config/flameshot/flameshot.ini` (direct X11 capture, Dracula colours) |
 | `picom` | `.config/picom/picom.conf` (compositor started by awesome: vsync, shadows, fades) |
@@ -35,8 +36,9 @@ git clone <repo-url> ~/Projects/dotfiles
 `install.sh` first lists any of these packages that are missing (the list is
 `required_pkgs` in the script; keep it in sync with the command above). It then moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
 and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
-keys (`color-scheme`, `gtk-theme`) via `gsettings`, since those don't live in
-files. Finally it copies everything under `system/` to the same path under `/`
+keys (`color-scheme`, `gtk-theme`) and the cursor (`cursor-theme`, `cursor-size`)
+via `gsettings`, since those don't live in files, and loads `~/.Xresources` into
+the running X session. Finally it copies everything under `system/` to the same path under `/`
 (with sudo, only files that changed; the first time, the original is kept as
 `*.orig`). If `mise` is missing it installs it to `~/.local/bin/mise` with the
 official installer (`curl https://mise.run | sh`; it isn't in the openSUSE repos),

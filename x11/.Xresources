@@ -1,0 +1,7 @@
+! Loaded by the X session at login (openSUSE xinitrc.common), or by hand:
+!   xrdb -merge ~/.Xresources
+! Mouse cursor for X apps and awesome. Same theme and size as GTK
+! (gtk-3.0/gtk-4.0 settings.ini) and ~/.icons/default, so it doesn't change
+! size between windows. Without a size, libXcursor guesses screen height / 48.
+Xcursor.theme: Adwaita
+Xcursor.size: 24

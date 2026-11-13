@@ -1,0 +1,5 @@
+# Cursor theme for apps that only look up the "default" theme
+# (the desktop background, older X apps)
+[Icon Theme]
+Name=Default
+Inherits=Adwaita
