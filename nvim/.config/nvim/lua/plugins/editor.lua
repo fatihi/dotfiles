@@ -25,8 +25,8 @@ local map = vim.keymap.set
 -- stylua: ignore
 local parsers = {
   "bash", "c", "css", "diff", "git_config", "git_rebase", "gitcommit", "gitignore",
-  "html", "ini", "json", "lua", "luadoc", "markdown", "markdown_inline", "python", "query",
-  "rasi", "regex", "rust", "toml", "vim", "vimdoc", "yaml",
+  "html", "ini", "json", "lua", "luadoc", "markdown", "markdown_inline", "odin", "python",
+  "query", "rasi", "regex", "rust", "toml", "vim", "vimdoc", "yaml",
 }
 local can_compile = vim.fn.executable("tree-sitter") == 1 and vim.fn.executable("cc") == 1
 if can_compile then

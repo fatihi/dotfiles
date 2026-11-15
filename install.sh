@@ -28,6 +28,7 @@ required_pkgs=(
   lazygit                                                          # git UI (also inside neovim)
   npm                                                              # Node.js, for the JSON/YAML language servers mason installs
   rustup                                                           # Rust toolchain (cargo, rustfmt, clippy, rust-analyzer for Neovim)
+  clang                                                            # Odin links with clang (Odin itself comes from mise, step 5c)
   docker docker-compose docker-buildx                              # containers (daemon enabled and user added to the docker group in step 5d)
 )
 missing_pkgs=()
@@ -35,8 +36,19 @@ for p in "${required_pkgs[@]}"; do
   rpm -q --whatprovides "$p" >/dev/null 2>&1 || missing_pkgs+=("$p")
 done
 if ((${#missing_pkgs[@]})); then
-  echo "Missing packages, install with:" >&2
-  echo "  sudo zypper install ${missing_pkgs[*]}" >&2
+  echo "Missing packages: ${missing_pkgs[*]}" >&2
+  # Ask before installing (only when run from a terminal); otherwise just report
+  answer=n
+  if [[ -t 0 ]]; then
+    read -rp "Install them now with sudo zypper install? [Y/n] " answer
+    answer="${answer:-y}"
+  fi
+  if [[ "$answer" == [Yy]* ]]; then
+    sudo zypper install "${missing_pkgs[@]}" || echo "zypper failed; continuing without them" >&2
+  else
+    echo "Install later with:" >&2
+    echo "  sudo zypper install ${missing_pkgs[*]}" >&2
+  fi
 fi
 
 # 2. Collect packages (every top-level folder except system/, see step 7)
@@ -88,6 +100,11 @@ fi
 if ! command -v mise >/dev/null && [[ ! -x "$HOME/.local/bin/mise" ]] && command -v curl >/dev/null; then
   echo "Installing mise to ~/.local/bin/mise"
   curl -fsSL https://mise.run | sh || echo "Could not install mise" >&2
+fi
+# Install the global tools from ~/.config/mise/config.toml (Odin; not in the openSUSE repos)
+mise_bin="$(command -v mise || echo "$HOME/.local/bin/mise")"
+if [[ -x "$mise_bin" ]]; then
+  "$mise_bin" install --yes || echo "Could not install the mise tools" >&2
 fi
 
 # 5d. Docker: start the daemon at boot and let the user run docker without sudo.

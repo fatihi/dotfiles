@@ -3,6 +3,7 @@
 -- Python works out of the box: debugpy is installed by mason (lua/plugins/lsp.lua),
 -- and the program runs with the project's venv / .venv (or $VIRTUAL_ENV) if there is one.
 -- Rust: rustaceanvim (lua/plugins/rust.lua) uses codelldb from mason.
+-- Odin: codelldb as well; Space d c builds the file's package with -debug first.
 -- Other languages need their debug adapter added to require("dap").adapters.
 local pack = require("config.pack")
 local gh = pack.gh
@@ -44,6 +45,43 @@ local function dap()
     -- debugpy-adapter is on Neovim's PATH via mason. Tests run with pytest or
     -- unittest, depending on the project (pytest.ini / pyproject.toml).
     require("dap-python").setup("debugpy-adapter")
+
+    -- Odin: codelldb from mason (on PATH; since 1.11 it talks over stdio).
+    -- An Odin package is a directory, so the file's directory is built with
+    -- -debug into Neovim's cache and that binary is started.
+    local d = require("dap")
+    d.adapters.codelldb = d.adapters.codelldb or { type = "executable", command = "codelldb" }
+    local function odin_build()
+      local dir = vim.fn.expand("%:p:h")
+      local out = vim.fn.stdpath("cache") .. "/odin-debug/" .. vim.fn.fnamemodify(dir, ":t")
+      vim.fn.mkdir(vim.fn.fnamemodify(out, ":h"), "p")
+      vim.notify("odin build " .. vim.fn.fnamemodify(dir, ":~") .. " -debug")
+      local res = vim.system({ "odin", "build", dir, "-debug", "-out:" .. out }, { text = true }):wait()
+      if res.code ~= 0 then
+        vim.notify("odin build failed:\n" .. (res.stderr or ""), vim.log.levels.ERROR)
+        return d.ABORT
+      end
+      return out
+    end
+    d.configurations.odin = {
+      {
+        name = "Build and debug this package",
+        type = "codelldb",
+        request = "launch",
+        program = odin_build,
+        cwd = "${workspaceFolder}",
+      },
+      {
+        name = "Build and debug this package (with arguments)",
+        type = "codelldb",
+        request = "launch",
+        program = odin_build,
+        cwd = "${workspaceFolder}",
+        args = function()
+          return require("dap.utils").splitstr(vim.fn.input("Arguments: "))
+        end,
+      },
+    }
   end
   return require("dap")
 end

@@ -2,3 +2,6 @@
 # mise.toml. `mise use -g <tool>@<version>` writes here (this file is a
 # symlink into the dotfiles repo, so commit the change afterwards).
 [tools]
+# Odin compiler (with vendor/raylib etc.); "latest" is resolved at install time,
+# `mise upgrade odin` moves to a newer release. Neovim's ols comes from mason.
+odin = "latest"

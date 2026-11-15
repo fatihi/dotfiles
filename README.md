@@ -11,7 +11,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
 | `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search/resize mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. resize mode (`Ctrl+a r`, then `h/j/k/l` or arrows, Shift = bigger steps, Esc/Enter/q leaves), copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Alt+h/j/k/l` move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
 | `nvim` | `.config/nvim/` (see [Neovim](#neovim) below) |
-| `mise` | `.config/mise/config.toml` (global tool versions, empty for now; projects pin their own in `mise.toml`) |
+| `mise` | `.config/mise/config.toml` (global tool versions: Odin, which isn't in the openSUSE repos; projects pin their own in `mise.toml`) |
 | `lazygit` | `.config/lazygit/config.yml` (Dracula colours; `e` opens the file in the surrounding Neovim) |
 | `gtk`   | `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`, `.config/gtk-4.0/gtk.css` (Dracula, dark mode, Adwaita cursor at 24 px) |
 | `x11` | `.Xresources` (`Xcursor.theme`/`Xcursor.size`, loaded at login), `.icons/default/index.theme` (inherits Adwaita) — same cursor and size in every app; without them Firefox/GTK picked Adwaita at screen height / 48 = 30 px while the rest used X's small built-in cursor |
@@ -28,14 +28,16 @@ sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
                     gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
-                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm rustup \
+                    neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm rustup clang \
                     docker docker-compose docker-buildx
 git clone <repo-url> ~/Projects/dotfiles
 ~/Projects/dotfiles/install.sh
 ```
 
-`install.sh` first lists any of these packages that are missing (the list is
-`required_pkgs` in the script; keep it in sync with the command above). It then moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
+`install.sh` first checks for these packages (the list is `required_pkgs` in the
+script; keep it in sync with the command above) and, if any are missing, asks
+whether to install them with `sudo zypper install` (default yes; without a
+terminal it only prints the command). It then moves any existing conflicting files to `~/.dotfiles-backup/<timestamp>/`
 and then symlinks every package into `$HOME`. It also sets the dconf dark-mode
 keys (`color-scheme`, `gtk-theme`) and the cursor (`cursor-theme`, `cursor-size`)
 via `gsettings`, since those don't live in files, and loads `~/.Xresources` into
@@ -43,6 +45,8 @@ the running X session. Finally it copies everything under `system/` to the same 
 (with sudo, only files that changed; the first time, the original is kept as
 `*.orig`). If `mise` is missing it installs it to `~/.local/bin/mise` with the
 official installer (`curl https://mise.run | sh`; it isn't in the openSUSE repos),
+then runs `mise install` for the global tools in its `config.toml` (Odin, with its
+`vendor` libraries such as raylib; Odin links with `clang`),
 and it downloads Neovim's German spell files. If `docker` is installed it enables
 the daemon (`systemctl enable --now docker`) and adds you to the `docker` group so
 `docker` works without sudo (log out and back in once; the group is root-equivalent).
@@ -113,7 +117,8 @@ commit the changed lockfile. Language servers, formatters and the Python debugge
 mason (`:Mason`) on the first start, also in the background (the JSON/YAML servers
 need `npm`, the Python ones and debugpy `python3`). Rust uses the toolchain from
 `rustup` (rust-analyzer, rustfmt, clippy; `install.sh` adds the components) and
-codelldb from mason for debugging.
+codelldb from mason for debugging. Odin uses the compiler from mise (`odin` must be on
+PATH, as it is in a shell with mise active) and ols + odinfmt from mason.
 
 | File | Contents |
 |------|----------|
@@ -126,9 +131,9 @@ codelldb from mason for debugging.
 | `lua/plugins/ui.lua` | snacks.picker setup (fuzzy finder, also for `vim.ui.select`; hidden files included), Dracula, lualine, which-key, indent guides, hex colour previews (mini.hipatterns), lualine shows the attached language servers, sessions (persistence; not saved when Neovim was started with files, unless a session is restored), start screen (mini.starter) |
 | `lua/plugins/editor.lua` | treesitter (parsers compiled locally with gcc; a language without a parser gets one the first time such a file is opened), big-file guard (over 1 MB or minified, i.e. very long lines: filetype `bigfile`, so no treesitter, language servers, linters, indent guides or colour previews, only regex highlighting), sticky context (treesitter-context), text objects (mini.ai: function, class, if/loop, argument, function call, tag, whole buffer, number, word part), function jumps (treesitter-textobjects), surround, autopairs, buffer delete that keeps the layout (mini.bufremove), flash, smart-splits (pinned to v2, which has the WezTerm integration built in), todo-comments, search and replace in all files (grug-far), render-markdown |
 | `lua/plugins/finder.lua` | picker keys (`Space f ...`), oil (in a popup on `-`), neo-tree (closed before a session is saved) |
-| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). Rust: rustfmt on save (rust-analyzer: see `rust.lua`). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
+| `lua/plugins/lsp.lua` | mason + nvim-lspconfig, `]d` / `[d` show the diagnostic in a popup, other uses of the symbol under the cursor highlighted (`]]` / `[[` jump between them), blink.cmp completion, conform (format on save with the formatters listed; language servers only format on `Space c f`, so JSON/YAML/TOML files aren't rewritten just by saving them), nvim-lint, trouble. Lua: lua_ls + stylua, lazydev (Neovim API, wezterm types). Shell: bashls (runs shellcheck) + shfmt. JSON/YAML: jsonls/yamlls with SchemaStore schemas. TOML: taplo. Python: basedpyright + ruff (lint, format, sort imports). Rust: rustfmt on save (rust-analyzer: see `rust.lua`). Odin: ols + odinfmt on save (follows the project's `odinfmt.json`; settings for ols in its `ols.json`). JSON/YAML/TOML are formatted by their server (`Space c f`). **Adding a language:** add it to `servers` / `tools` / `formatters_by_ft` / `linters_by_ft` at the top |
 | `lua/plugins/git.lua` | gitsigns, git pickers (changed files, commits), lazygit in a floating window |
-| `lua/plugins/debug.lua` | debugger: nvim-dap, nvim-dap-view (panel with variables, watches, call stack, breakpoints, REPL; opens while debugging, values shown next to the code), nvim-dap-python (debugpy from mason; runs with the project's `venv`/`.venv`; debug the test under the cursor with pytest or unittest). Set up on the first debug key, so it costs nothing at startup. Rust: codelldb via rustaceanvim. **Other languages:** add their adapter to `require("dap").adapters` |
+| `lua/plugins/debug.lua` | debugger: nvim-dap, nvim-dap-view (panel with variables, watches, call stack, breakpoints, REPL; opens while debugging, values shown next to the code), nvim-dap-python (debugpy from mason; runs with the project's `venv`/`.venv`; debug the test under the cursor with pytest or unittest). Set up on the first debug key, so it costs nothing at startup. Rust: codelldb via rustaceanvim. Odin: codelldb; `Space d c` builds the file's package with `-debug` (into Neovim's cache) and starts it. **Other languages:** add their adapter to `require("dap").adapters` |
 | `lua/plugins/rust.lua` | Rust: rustaceanvim (rust-analyzer from rustup, clippy lints on save, all cargo features; `K` hover with actions, `Space c a` grouped code actions, `Space c e` / `Space c E` explain the error / show it as cargo does, `Space c m` expand macro, `Space c R` / `Space c T` / `Space c l` run / test / run what's under the cursor, `Space d m` / `Space d M` debug what's under the cursor / pick, `Space c o` Cargo.toml, `Space c p` parent module, `Space c D` docs.rs), crates.nvim in `Cargo.toml` (outdated/yanked versions, completion of crates, versions, features; `Space c a` to update) |
 | `.stylua.toml` | Lua formatting style. stylua only formats projects that have one, so awesome/wezterm stay as they are |
 
