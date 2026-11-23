@@ -31,6 +31,14 @@ fi
 # zoxide: "z foo" jumps to the most used folder matching foo, "zi" picks one with fzf
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"
 
+# eza: ll/la = long list with git status and icons, lt = tree two levels deep.
+# Plain ls stays GNU ls (same flags everywhere, safe for copy-pasted commands).
+if command -v eza >/dev/null; then
+  alias ll='eza -l --git --icons --group-directories-first'
+  alias la='eza -la --git --icons --group-directories-first'
+  alias lt='eza --tree --level=2 --icons --group-directories-first'
+fi
+
 # mise: puts the tool versions from mise.toml (or ~/.config/mise/config.toml) on PATH
 command -v mise >/dev/null && eval "$(mise activate bash)"
 

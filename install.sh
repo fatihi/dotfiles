@@ -23,7 +23,7 @@ required_pkgs=(
   light-locker polkit-gnome NetworkManager-applet autorandr arandr # screen lock, polkit agent, network tray, monitor setup
   brightnessctl playerctl wireplumber pulseaudio-utils             # brightness, media, wpctl, pactl
   gtk3-metatheme-dracula gtk4-metatheme-dracula                    # GTK themes
-  fzf zoxide                                                       # fuzzy finder, smart cd (bash)
+  fzf zoxide eza                                                   # fuzzy finder, smart cd, ls with git/icons/tree (bash)
   neovim ripgrep fd gcc tree-sitter xclip                          # editor, its search tools, treesitter parser builds, clipboard
   lazygit                                                          # git UI (also inside neovim)
   npm                                                              # Node.js, for the JSON/YAML language servers mason installs

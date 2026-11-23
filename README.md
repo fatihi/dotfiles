@@ -6,7 +6,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 
 | Package | Files |
 |---------|-------|
-| `bash`  | `.bashrc` (big shared history, fzf, zoxide, mise, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
+| `bash`  | `.bashrc` (big shared history, fzf, zoxide, eza aliases `ll`/`la`/`lt` (plain `ls` stays GNU ls), mise, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
 | `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
 | `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search/resize mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. resize mode (`Ctrl+a r`, then `h/j/k/l` or arrows, Shift = bigger steps, Esc/Enter/q leaves), copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Ctrl+Arrow` keys move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
@@ -27,7 +27,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 sudo zypper install git stow awesome awesome-vicious awesome-freedesktop \
                     wezterm rofi flameshot picom light-locker polkit-gnome NetworkManager-applet autorandr arandr \
                     brightnessctl playerctl wireplumber pulseaudio-utils \
-                    gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide \
+                    gtk3-metatheme-dracula gtk4-metatheme-dracula fzf zoxide eza \
                     neovim ripgrep fd gcc tree-sitter xclip lazygit nerdfonts-symbolsonly-fonts npm rustup clang \
                     docker docker-compose docker-buildx
 git clone <repo-url> ~/Projects/dotfiles
