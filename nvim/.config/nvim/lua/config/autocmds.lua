@@ -84,3 +84,16 @@ autocmd("FileType", {
     vim.opt_local.spell = true
   end,
 })
+
+-- Odin: indent with tabs (its convention, and what odinfmt writes on save),
+-- shown 4 wide. A project's .editorconfig still overrides it.
+autocmd("FileType", {
+  group = group,
+  pattern = "odin",
+  callback = function()
+    vim.opt_local.expandtab = false
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+  end,
+})
