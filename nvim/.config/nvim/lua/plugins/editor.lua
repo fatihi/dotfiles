@@ -217,17 +217,17 @@ map("o", "r", flash.remote, { desc = "Flash remote (e.g. yr<jump>iw)" })
 map("c", "<C-s>", flash.toggle, { desc = "Toggle flash in / search" })
 
 -- Ctrl+h/j/k/l: move between splits, and on into WezTerm panes at the edge
--- Alt+h/j/k/l: resize the split (or the WezTerm pane)
+-- Ctrl+Arrow keys: resize the split (or the WezTerm pane)
 local ss = require("smart-splits")
 ss.setup({ at_edge = "stop" })
 map("n", "<C-h>", ss.move_cursor_left, { desc = "Go to left split/pane" })
 map("n", "<C-j>", ss.move_cursor_down, { desc = "Go to lower split/pane" })
 map("n", "<C-k>", ss.move_cursor_up, { desc = "Go to upper split/pane" })
 map("n", "<C-l>", ss.move_cursor_right, { desc = "Go to right split/pane" })
-map("n", "<A-h>", ss.resize_left, { desc = "Resize split left" })
-map("n", "<A-j>", ss.resize_down, { desc = "Resize split down" })
-map("n", "<A-k>", ss.resize_up, { desc = "Resize split up" })
-map("n", "<A-l>", ss.resize_right, { desc = "Resize split right" })
+map("n", "<C-Left>", ss.resize_left, { desc = "Resize split left" })
+map("n", "<C-Down>", ss.resize_down, { desc = "Resize split down" })
+map("n", "<C-Up>", ss.resize_up, { desc = "Resize split up" })
+map("n", "<C-Right>", ss.resize_right, { desc = "Resize split right" })
 
 -- TODO / FIXME / HACK / NOTE comments: highlighted, ]t / [t to jump
 local todo = require("todo-comments")

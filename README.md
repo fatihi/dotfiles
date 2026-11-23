@@ -9,7 +9,7 @@ Each top-level folder is a *package* whose contents mirror `$HOME`:
 | `bash`  | `.bashrc` (big shared history, fzf, zoxide, mise, wezterm shell integration), `.profile` (`EDITOR=nvim`), `.inputrc` (case-insensitive completion, Up/Down prefix history search) |
 | `git`   | `.gitconfig` (user, `main` default branch, ff-only pull, auto upstream on push, zdiff3 conflicts, rerere) |
 | `awesome` | `.config/awesome/rc.lua` + `modules/` (see below), `.config/awesome/themes/theme.lua` (Dracula) |
-| `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search/resize mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. resize mode (`Ctrl+a r`, then `h/j/k/l` or arrows, Shift = bigger steps, Esc/Enter/q leaves), copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Alt+h/j/k/l` move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
+| `wezterm` | `.config/wezterm/wezterm.lua` (font with current Nerd Font icons, Dracula colours, tab bar with leader/copy/search/resize mode indicator, visual bell, dimmed inactive panes, pane/tab keys on `Ctrl+a` leader incl. resize mode (`Ctrl+a r`, then `h/j/k/l` or arrows, Shift = bigger steps, Esc/Enter/q leaves), copy mode, search, quick select, pane picker/swap, tab moving; `Ctrl+h/j/k/l` / `Ctrl+Arrow` keys move between / resize panes, handed to Neovim when it runs in the pane; links open on Ctrl+click) |
 | `nvim` | `.config/nvim/` (see [Neovim](#neovim) below) |
 | `mise` | `.config/mise/config.toml` (global tool versions: Odin, which isn't in the openSUSE repos; projects pin their own in `mise.toml`) |
 | `lazygit` | `.config/lazygit/config.yml` (Dracula colours; `e` opens the file in the surrounding Neovim) |
@@ -152,7 +152,8 @@ The main ones:
 | `gsa` / `gsd` / `gsr` | add / delete / replace surrounding (e.g. `gsaiw"`) |
 | `af` `if` / `ac` `ic` / `ao` `io` | function / class / if-or-loop text objects |
 | `au` `iu` / `at` `it` / `ag` `ig` / `id` / `ie` | function call / HTML tag / whole buffer (`yag`) / number / part of a camelCase or snake_case word |
-| `Ctrl+h/j/k/l` / `Alt+h/j/k/l` | move between / resize splits, continuing into wezterm panes |
+| `Ctrl+h/j/k/l` / `Ctrl+Arrow` keys | move between / resize splits, continuing into wezterm panes |
+| `Alt+j/k` (normal, insert, visual) / `J`/`K` (visual) | move the line or selection down / up |
 | `gd` / `grr` / `grn` / `gra` / `K` | definition / references / rename / code action / hover |
 | `]]` / `[[` | next / previous use of the symbol under the cursor |
 | `]d` / `[d` | next / previous diagnostic (message in a popup) |

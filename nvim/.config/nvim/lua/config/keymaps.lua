@@ -40,6 +40,14 @@ map("x", ">", ">gv")
 map("x", "J", ":move '>+1<cr>gv=gv", { desc = "Move lines down", silent = true })
 map("x", "K", ":move '<-2<cr>gv=gv", { desc = "Move lines up", silent = true })
 
+-- Alt+j/k: move the line (or the selection) down/up, re-indented; takes a count
+map("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move line down" })
+map("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move line up" })
+map("i", "<A-j>", "<esc><cmd>move .+1<cr>==gi", { desc = "Move line down" })
+map("i", "<A-k>", "<esc><cmd>move .-2<cr>==gi", { desc = "Move line up" })
+map("x", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move lines down", silent = true })
+map("x", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move lines up", silent = true })
+
 -- Buffers: [b / ]b switch (built in), <leader>bd / <leader>bo in lua/plugins/editor.lua
 
 -- Diagnostics ([d / ]d jump, built in)

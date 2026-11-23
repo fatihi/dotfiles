@@ -169,19 +169,18 @@ end
 config.key_tables = { resize_pane = resize_keys }
 
 -- Without the leader: Ctrl+h/j/k/l = move to the pane in that direction,
--- Alt+h/j/k/l = resize the pane. When Neovim runs in the pane, the key goes to
+-- Ctrl+Arrow keys = resize the pane. When Neovim runs in the pane, the key goes to
 -- Neovim instead (smart-splits.nvim), which moves between its splits and hands
 -- back to wezterm at the edge. Neovim announces itself via the IS_NVIM user var.
 local function is_nvim(pane)
   return pane:get_user_vars().IS_NVIM == "true"
 end
 for _, d in ipairs(directions) do
-  local key = d.key
   for _, m in ipairs({
-    { mods = "CTRL", action = act.ActivatePaneDirection(d.dir) },
-    { mods = "ALT", action = act.AdjustPaneSize({ d.dir, 3 }) },
+    { key = d.key, mods = "CTRL", action = act.ActivatePaneDirection(d.dir) },
+    { key = d.arrow, mods = "CTRL", action = act.AdjustPaneSize({ d.dir, 3 }) },
   }) do
-    local mods, action = m.mods, m.action
+    local key, mods, action = m.key, m.mods, m.action
     table.insert(config.keys, {
       key = key,
       mods = mods,
