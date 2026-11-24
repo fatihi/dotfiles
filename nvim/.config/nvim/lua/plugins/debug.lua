@@ -48,21 +48,51 @@ local function dap()
 
     -- Odin: codelldb from mason (on PATH; since 1.11 it talks over stdio).
     -- An Odin package is a directory, so the file's directory is built with
-    -- -debug into Neovim's cache and that binary is started.
+    -- -debug into Neovim's cache and that binary is started. "Build and debug
+    -- tests" builds it with -build-mode:test (one thread, optionally one test).
     local d = require("dap")
+
     d.adapters.codelldb = d.adapters.codelldb or { type = "executable", command = "codelldb" }
-    local function odin_build()
+
+    local function odin_build_with(extra, suffix)
       local dir = vim.fn.expand("%:p:h")
-      local out = vim.fn.stdpath("cache") .. "/odin-debug/" .. vim.fn.fnamemodify(dir, ":t")
+      local out = vim.fn.stdpath("cache") .. "/odin-debug/" .. vim.fn.fnamemodify(dir, ":t") .. suffix
+
+      local cmd = { "odin", "build", dir, "-debug", "-out:" .. out }
+      vim.list_extend(cmd, extra)
+
       vim.fn.mkdir(vim.fn.fnamemodify(out, ":h"), "p")
-      vim.notify("odin build " .. vim.fn.fnamemodify(dir, ":~") .. " -debug")
-      local res = vim.system({ "odin", "build", dir, "-debug", "-out:" .. out }, { text = true }):wait()
+      vim.notify(table.concat(cmd, " "))
+      local res = vim.system(cmd, { text = true }):wait()
       if res.code ~= 0 then
         vim.notify("odin build failed:\n" .. (res.stderr or ""), vim.log.levels.ERROR)
         return d.ABORT
       end
       return out
     end
+
+    local function odin_build()
+      return odin_build_with({}, "")
+    end
+
+    local function odin_build_tests()
+      local extra = { "-build-mode:test", "-define:ODIN_TEST_THREADS=1" }
+      local name = vim.fn.input("Test (empty = all): ")
+      if name ~= "" then
+        -- Test names are qualified with the package from the file's `package` line.
+        local pkg = "main"
+        for _, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+          local m = line:match("^%s*package%s+([%w_]+)")
+          if m then
+            pkg = m
+            break
+          end
+        end
+        table.insert(extra, "-define:ODIN_TEST_NAMES=" .. pkg .. "." .. name)
+      end
+      return odin_build_with(extra, "-test")
+    end
+
     d.configurations.odin = {
       {
         name = "Build and debug this package",
@@ -80,6 +110,13 @@ local function dap()
         args = function()
           return require("dap.utils").splitstr(vim.fn.input("Arguments: "))
         end,
+      },
+      {
+        name = "Build and debug tests",
+        type = "codelldb",
+        request = "launch",
+        program = odin_build_tests,
+        cwd = "${workspaceFolder}",
       },
     }
   end
