@@ -168,31 +168,29 @@ for _, d in ipairs(directions) do
 end
 config.key_tables = { resize_pane = resize_keys }
 
--- Without the leader: Ctrl+h/j/k/l = move to the pane in that direction,
--- Ctrl+Arrow keys = resize the pane. When Neovim runs in the pane, the key goes to
--- Neovim instead (smart-splits.nvim), which moves between its splits and hands
--- back to wezterm at the edge. Neovim announces itself via the IS_NVIM user var.
+-- Without the leader: Ctrl+h/j/k/l = move to the pane in that direction.
+-- When Neovim runs in the pane, the key goes to Neovim instead
+-- (smart-splits.nvim), which moves between its splits and hands back to
+-- wezterm at the edge. Neovim announces itself via the IS_NVIM user var.
+-- Ctrl+Arrow keys are not bound here: they reach the program in the pane
+-- (word jumps in bash, Claude Code etc.); Neovim resizes its splits with them
+-- and resizes the wezterm pane itself at the edge.
 local function is_nvim(pane)
   return pane:get_user_vars().IS_NVIM == "true"
 end
 for _, d in ipairs(directions) do
-  for _, m in ipairs({
-    { key = d.key, mods = "CTRL", action = act.ActivatePaneDirection(d.dir) },
-    { key = d.arrow, mods = "CTRL", action = act.AdjustPaneSize({ d.dir, 3 }) },
-  }) do
-    local key, mods, action = m.key, m.mods, m.action
-    table.insert(config.keys, {
-      key = key,
-      mods = mods,
-      action = wezterm.action_callback(function(window, pane)
-        if is_nvim(pane) then
-          window:perform_action(act.SendKey({ key = key, mods = mods }), pane)
-        else
-          window:perform_action(action, pane)
-        end
-      end),
-    })
-  end
+  local key, mods, action = d.key, "CTRL", act.ActivatePaneDirection(d.dir)
+  table.insert(config.keys, {
+    key = key,
+    mods = mods,
+    action = wezterm.action_callback(function(window, pane)
+      if is_nvim(pane) then
+        window:perform_action(act.SendKey({ key = key, mods = mods }), pane)
+      else
+        window:perform_action(action, pane)
+      end
+    end),
+  })
 end
 
 return config
